@@ -1088,8 +1088,9 @@ function showPanel(id) { for (const p of ['menu', 'pause', 'results', 'ranking',
 // Sem configuração, o ranking fica salvo só neste aparelho (bom para um totem/TV na loja) e não há modo online.
 // Com os dados do Supabase (Project Settings → API: Project URL e chave anon public), o ranking fica único entre
 // todos os celulares (rode ranking-supabase.sql no SQL Editor) e as salas online passam a funcionar.
-const SUPABASE = { url: '', anonKey: '' };
+const SUPABASE = { url: 'https://xrnnkgcskgijjkkoygnz.supabase.co', anonKey: 'sb_publishable_QSXnL3Ap0UvJxaMbkUJnTw_G_aBTzTt' }; // chave pública (anon): feita para ficar no navegador; a segurança vem do RLS
 const online = () => !!(SUPABASE.url && SUPABASE.anonKey);
+const SALAS_SUPABASE = false; // true = salas pelo Supabase Realtime (não confere o remetente como o PeerJS)
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const LKEY = 'baratao-kart-ranking';
 const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
@@ -1202,7 +1203,8 @@ function openPeerChannel(code, host, onMsg) {
   }));
 }
 async function openChannel(code, host, onMsg) {
-  if (!NET_LOCAL && !online()) return openPeerChannel(code, host, onMsg);
+  // salas sempre pelo PeerJS (testado e com o anfitrião conferindo quem fala); o Supabase fica só com o ranking
+  if (!NET_LOCAL && !SALAS_SUPABASE) return openPeerChannel(code, host, onMsg);
   if (NET_LOCAL) {
     const bc = new BroadcastChannel('baratao-kart-' + code);
     bc.onmessage = e => onMsg(e.data);

@@ -1,7 +1,7 @@
 -- Ranking de colaboradores do Baratão Kart GP
 -- Como usar: Supabase → SQL Editor → cole tudo → Run.
 -- Depois copie a Project URL e a anon key (Project Settings → API) para
--- const RANKING = { url: '...', anonKey: '...' } no index.html.
+-- const SUPABASE = { url: '...', anonKey: '...' } no index.html.
 
 create table if not exists public.kart_ranking (
   id         bigint generated always as identity primary key,
@@ -17,6 +17,7 @@ create index if not exists kart_ranking_pista_tempo on public.kart_ranking (pist
 
 -- Segurança (RLS): o jogo só pode LER e INSERIR. Editar/apagar só pelo painel do Supabase.
 alter table public.kart_ranking enable row level security;
+grant select, insert on public.kart_ranking to anon;
 
 drop policy if exists "ranking leitura publica" on public.kart_ranking;
 create policy "ranking leitura publica" on public.kart_ranking
