@@ -1169,7 +1169,10 @@ function openPeerChannel(code, host, onMsg) {
       c.on('data', m => {
         if (host) { // cada conexão fica presa ao primeiro remetente: ninguém fala em nome de outro
           if (!m || typeof m.f !== 'string') return;
-          if (!c.fid) c.fid = m.f; else if (m.f !== c.fid) return;
+          if (!c.fid) { // a 1ª mensagem não pode usar o nome do anfitrião nem o de outra conexão
+            if (m.f === NET.id || [...conns].some(o => o.fid === m.f)) return;
+            c.fid = m.f;
+          } else if (m.f !== c.fid) return;
           for (const o of conns) if (o !== c && o.open) o.send(m);
         }
         onMsg(m);
