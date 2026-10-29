@@ -1166,7 +1166,14 @@ function openPeerChannel(code, host, onMsg) {
     const api = { send: m => { for (const c of conns) if (c.open) c.send(m); }, close: () => peer.destroy() };
     const t = setTimeout(() => { peer.destroy(); fail(new Error('o servidor não respondeu')); }, 12000);
     const wire = c => {
-      c.on('data', m => { if (host) for (const o of conns) if (o !== c && o.open) o.send(m); onMsg(m); });
+      c.on('data', m => {
+        if (host) { // cada conexão fica presa ao primeiro remetente: ninguém fala em nome de outro
+          if (!m || typeof m.f !== 'string') return;
+          if (!c.fid) c.fid = m.f; else if (m.f !== c.fid) return;
+          for (const o of conns) if (o !== c && o.open) o.send(m);
+        }
+        onMsg(m);
+      });
       c.on('close', () => conns.delete(c));
     };
     peer.on('error', e => {
