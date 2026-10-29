@@ -1168,11 +1168,8 @@ function openPeerChannel(code, host, onMsg) {
     const wire = c => {
       c.on('data', m => {
         if (host) { // cada conexão fica presa ao primeiro remetente: ninguém fala em nome de outro
-          if (!m || typeof m.f !== 'string') return;
-          if (!c.fid) { // a 1ª mensagem não pode usar o nome do anfitrião nem o de outra conexão
-            if (m.f === NET.id || [...conns].some(o => o.fid === m.f)) return;
-            c.fid = m.f;
-          } else if (m.f !== c.fid) return;
+          if (!m || typeof m !== 'object') return;
+          m.f = c.peer; // quem fala é decidido pela conexão (id dado pelo servidor do PeerJS), não pelo que a mensagem diz
           for (const o of conns) if (o !== c && o.open) o.send(m);
         }
         onMsg(m);
@@ -1188,7 +1185,7 @@ function openPeerChannel(code, host, onMsg) {
       peer.on('connection', c => { conns.add(c); wire(c); });
     } else peer.on('open', () => {
       const c = peer.connect(room, { serialization: 'json', reliable: true });
-      c.on('open', () => { clearTimeout(t); conns.add(c); wire(c); ok(api); });
+      c.on('open', () => { clearTimeout(t); conns.add(c); wire(c); api.id = peer.id; ok(api); });
     });
   }));
 }
@@ -1331,6 +1328,7 @@ async function netConnect(code, host) {
       roster: host ? [{ id: '', name, ch: chosen[0] }] : [], track: chosenTrack, joinAt: performance.now(), lastHi: performance.now(), racing: false });
     if (host) NET.roster[0].id = NET.id;
     NET.ch = await openChannel(code, host, onNet); NET.on = true;
+    if (!host && NET.ch.id) NET.id = NET.ch.id; // no PeerJS, o id do jogador é o da conexão (o anfitrião confere)
     if (host) { broadcastLobby(); oMsg('Passe o código da sala para os colegas. Com 2 ou mais pilotos, toque em COMEÇAR.'); }
     else { netSend('hi', { name, ch: chosen[0] }); oMsg('Procurando a sala...'); }
     renderLobby();
