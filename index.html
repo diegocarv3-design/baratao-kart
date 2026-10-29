@@ -1144,28 +1144,52 @@ $('#bSave').onclick = async () => {
 };
 // ================= online: salas com código =================
 // Cada aparelho comanda o próprio kart e transmite a posição dele algumas vezes por segundo; quem criou a sala
-// (o anfitrião) também comanda os karts do computador. As mensagens passam por um canal "ao vivo" do Supabase
-// (Realtime broadcast: só repassa, não grava nada no banco).
-// Teste no mesmo computador, sem Supabase: abra o jogo com ?teste-online no endereço, em duas abas.
+// (o anfitrião) também comanda os karts do computador. Por onde as mensagens passam:
+// · com o Supabase configurado: canal "ao vivo" dele (Realtime broadcast: só repassa, não grava nada no banco);
+// · sem Supabase: PeerJS (os aparelhos se ligam direto, WebRTC; o servidor público do PeerJS só os apresenta);
+// · ?teste-online no endereço: BroadcastChannel, para testar em duas abas do mesmo computador.
 const NET_LOCAL = /[?&]teste-online/.test(location.search);
-const netReady = () => NET_LOCAL || online();
-let sbLib = null, sbClient = null;
-function loadSupabase() { // a biblioteca só é baixada quando alguém entra no online
-  if (window.supabase) return Promise.resolve(window.supabase);
-  return sbLib || (sbLib = new Promise((ok, fail) => {
-    const sc = document.createElement('script');
-    sc.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.80.0/dist/umd/supabase.min.js';
-    sc.onload = () => ok(window.supabase); sc.onerror = () => { sbLib = null; fail(new Error('sem internet?')); };
+const libs = {};
+function loadLib(url, name) { // as bibliotecas só são baixadas quando alguém entra no online
+  if (window[name]) return Promise.resolve(window[name]);
+  return libs[url] || (libs[url] = new Promise((ok, fail) => {
+    const sc = document.createElement('script'); sc.src = url;
+    sc.onload = () => ok(window[name]); sc.onerror = () => { delete libs[url]; fail(new Error('sem internet?')); };
     document.head.appendChild(sc);
   }));
 }
-async function openChannel(code, onMsg) {
+let sbClient = null;
+// PeerJS: o anfitrião vira o "ponto de encontro" da sala e repassa o que cada um manda para os outros
+function openPeerChannel(code, host, onMsg) {
+  return loadLib('https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js', 'Peer').then(Peer => new Promise((ok, fail) => {
+    const room = 'baratao-kart-v1-' + code, conns = new Set(), peer = host ? new Peer(room) : new Peer();
+    const api = { send: m => { for (const c of conns) if (c.open) c.send(m); }, close: () => peer.destroy() };
+    const t = setTimeout(() => { peer.destroy(); fail(new Error('o servidor não respondeu')); }, 12000);
+    const wire = c => {
+      c.on('data', m => { if (host) for (const o of conns) if (o !== c && o.open) o.send(m); onMsg(m); });
+      c.on('close', () => conns.delete(c));
+    };
+    peer.on('error', e => {
+      clearTimeout(t);
+      fail(new Error(e.type === 'unavailable-id' ? 'código em uso' : e.type === 'peer-unavailable' ? 'sala não encontrada, confira o código' : 'falha na conexão (' + e.type + ')'));
+    });
+    if (host) {
+      peer.on('open', () => { clearTimeout(t); ok(api); });
+      peer.on('connection', c => { conns.add(c); wire(c); });
+    } else peer.on('open', () => {
+      const c = peer.connect(room, { serialization: 'json', reliable: true });
+      c.on('open', () => { clearTimeout(t); conns.add(c); wire(c); ok(api); });
+    });
+  }));
+}
+async function openChannel(code, host, onMsg) {
+  if (!NET_LOCAL && !online()) return openPeerChannel(code, host, onMsg);
   if (NET_LOCAL) {
     const bc = new BroadcastChannel('baratao-kart-' + code);
     bc.onmessage = e => onMsg(e.data);
     return { send: m => bc.postMessage(m), close: () => bc.close() };
   }
-  const lib = await loadSupabase();
+  const lib = await loadLib('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.80.0/dist/umd/supabase.min.js', 'supabase');
   sbClient = sbClient || lib.createClient(SUPABASE.url, SUPABASE.anonKey, { auth: { persistSession: false }, realtime: { params: { eventsPerSecond: 30 } } });
   const ch = sbClient.channel('baratao-kart-' + code, { config: { broadcast: { self: false } } });
   ch.on('broadcast', { event: 'm' }, ({ payload }) => onMsg(payload));
@@ -1190,7 +1214,15 @@ function packState(k) {
     fl: (k.drifting ? 1 : 0) | (k.boost > 0 ? 2 : 0) | (k.spinT > 0 ? 4 : 0) | (k.rescueT > 0 ? 8 : 0) | (k.finished ? 16 : 0),
     lap: k.lap, pr: k.prog, ft: r(k.finishT), it: k.item || '' };
 }
-function applyState(st) { const k = kartBy(st.i); if (k && k.remote) k.net = { ...st, at: performance.now() }; }
+// só aceita posição com números de verdade e dentro do mapa (mensagem estranha é ignorada)
+const okNum = (v, a, b) => typeof v === 'number' && isFinite(v) && v >= a && v <= b;
+function applyState(st) {
+  if (!st || !['x', 'y'].every(c => okNum(st[c], 0, TS)) || !['a', 'v', 'l', 'c'].every(c => okNum(st[c], -1e4, 1e4)) || !okNum(st.p, -500, 1000)) return;
+  if (!okNum(st.lap, -5, 10) || !okNum(st.pr, -1e5, 1e5) || !okNum(st.ft, 0, 1e4) || !okNum(st.fl, 0, 63)) return;
+  const k = kartBy(st.i); if (!k || !k.remote) return;
+  const it = ['tomate', 'leite', 'turbo'].includes(st.it) ? st.it : '';
+  k.net = { x: st.x, y: st.y, a: st.a, v: st.v, p: st.p, l: st.l, c: st.c, fl: st.fl, lap: st.lap, pr: st.pr, ft: st.ft, it, at: performance.now() };
+}
 // kart de outro aparelho: desliza até onde ele deve estar agora (última posição + velocidade × tempo desde a mensagem)
 function netFollow(k, dt) {
   const st = k.net; if (!st) return;
@@ -1227,7 +1259,7 @@ function onNet(m) {
   switch (m.t) {
     case 'hi': if (NET.host) hostHi(m); break;
     case 'lobby':
-      if (NET.host) break;
+      if (NET.host || (NET.hostId && m.f !== NET.hostId)) break; // depois de achar o anfitrião, só ele manda no lobby
       NET.hostId = m.f; NET.gotLobby = true; NET.roster = m.roster; NET.track = m.track;
       if (!NET.racing) {
         renderLobby();
@@ -1235,13 +1267,14 @@ function onNet(m) {
         else if ($('#oMsg').textContent.startsWith('Procurando')) oMsg('Você entrou! Esperando o anfitrião começar a corrida.');
       }
       break;
-    case 'start': if (!NET.host && m.slots.some(p => p.id === NET.id)) startNetRace(m); break;
-    case 's': if (NET.racing) applyState(m); break;
-    case 'ai': if (NET.racing && !NET.host) m.k.forEach(applyState); break;
+    case 'start': if (!NET.host && (!NET.hostId || m.f === NET.hostId) && m.slots.some(p => p.id === NET.id)) startNetRace(m); break;
+    case 's': if (NET.racing && m.i === m.f) applyState(m); break; // cada um só fala do próprio kart
+    case 'ai': if (NET.racing && !NET.host && m.f === NET.hostId && Array.isArray(m.k)) m.k.slice(0, 4).forEach(st => { if (String(st && st.i).startsWith('ia')) applyState(st); }); break;
     case 'shot':
-      if (NET.racing && k) { shots.push({ id: m.id, x: m.x, y: m.y, ang: m.a, speed: m.sp, life: 2.4, owner: k, t: 0 }); if (near(k)) sfx.throw(); }
+      // tomate só vale de quem jogou (o próprio kart) ou do anfitrião (karts da IA)
+      if (NET.racing && k && (m.o === m.f || m.f === NET.hostId) && ['x', 'y'].every(c => okNum(m[c], 0, TS)) && okNum(m.a, -1e4, 1e4) && okNum(m.sp, 0, 2000)) { shots.push({ id: m.id, x: m.x, y: m.y, ang: m.a, speed: m.sp, life: 2.4, owner: k, t: 0 }); if (near(k)) sfx.throw(); }
       break;
-    case 'pud': if (NET.racing && k) { puddles.push({ id: m.id, x: m.x, y: m.y, owner: k, t: 0 }); if (puddles.length > 12) puddles.shift(); } break;
+    case 'pud': if (NET.racing && k && ['x', 'y'].every(c => okNum(m[c], 0, TS))) { puddles.push({ id: m.id, x: m.x, y: m.y, owner: k, t: 0 }); if (puddles.length > 12) puddles.shift(); } break;
     case 'hit': {
       shots = shots.filter(o => o.id !== m.id); puddles = puddles.filter(o => o.id !== m.id);
       const v = kartBy(m.v); if (v && v.remote) { say(v, HIT_TXT[v.ch.id]); if (near(v)) sfx.splat(); }
@@ -1279,23 +1312,24 @@ function renderLobby() {
     : 'Procurando a sala...';
 }
 async function netConnect(code, host) {
-  if (!netReady()) return oMsg('O online ainda não foi ligado: falta configurar o Supabase no jogo.');
   const name = cleanName($('#iNick').value);
   if (name.length < 2) { oMsg('Digite seu nome (pelo menos 2 letras).'); $('#iNick').focus(); return; }
   lsSet('baratao-kart-nome', name); initAudio(); sfx.click();
   $('#bCreate').disabled = $('#bJoin').disabled = true; oMsg('Conectando...');
   try {
-    Object.assign(NET, { id: Math.random().toString(36).slice(2, 10), code, host, name, hostId: host ? '' : '', gotLobby: host, seen: {},
+    Object.assign(NET, { id: Math.random().toString(36).slice(2, 10), code, host, name, hostId: '', gotLobby: host, seen: {},
       roster: host ? [{ id: '', name, ch: chosen[0] }] : [], track: chosenTrack, joinAt: performance.now(), lastHi: performance.now(), racing: false });
     if (host) NET.roster[0].id = NET.id;
-    NET.ch = await openChannel(code, onNet); NET.on = true;
+    NET.ch = await openChannel(code, host, onNet); NET.on = true;
     if (host) { broadcastLobby(); oMsg('Passe o código da sala para os colegas. Com 2 ou mais pilotos, toque em COMEÇAR.'); }
     else { netSend('hi', { name, ch: chosen[0] }); oMsg('Procurando a sala...'); }
     renderLobby();
-  } catch (e) { NET.ch = null; NET.on = false; oMsg('Não foi possível conectar: ' + e.message); }
-  $('#bCreate').disabled = $('#bJoin').disabled = false;
+  } catch (e) { NET.ch = null; NET.on = false; oMsg('Não foi possível conectar: ' + e.message); $('#bCreate').disabled = $('#bJoin').disabled = false; return false; }
+  $('#bCreate').disabled = $('#bJoin').disabled = false; return true;
 }
-function netCreate() { netConnect(String(1000 + Math.random() * 9000 | 0), true); }
+async function netCreate() { // se o código sorteado já estiver em uso, tenta outro
+  for (let i = 0; i < 3; i++) if (await netConnect(String(1000 + Math.random() * 9000 | 0), true) || !/em uso/.test($('#oMsg').textContent)) return;
+}
 function netJoin() {
   const code = $('#iCode').value.replace(/\D/g, '');
   if (code.length !== 4) { oMsg('Digite o código de 4 números.'); $('#iCode').focus(); return; }
@@ -1355,7 +1389,7 @@ addEventListener('pagehide', () => { if (NET.on) netSend('bye'); });
 $('#bOnline').onclick = () => {
   initAudio(); sfx.click(); $('#iNick').value = $('#iNick').value || (lsGet('baratao-kart-nome') || '').slice(0, 12);
   showPanel('online'); renderLobby();
-  oMsg(netReady() ? `Piloto: ${CHARS[chosen[0]].name} · Pista: ${TRACKS[chosenTrack].name} (troque no menu antes de entrar)` : 'O online ainda não foi ligado: falta configurar o Supabase no jogo.');
+  oMsg(`Piloto: ${CHARS[chosen[0]].name} · Pista: ${TRACKS[chosenTrack].name} (troque no menu antes de entrar)`);
 };
 $('#bCreate').onclick = netCreate;
 $('#bJoin').onclick = netJoin;
@@ -1476,7 +1510,7 @@ addEventListener('resize', fit); fit();
 // ================= loop principal =================
 let prevT = performance.now();
 function frame(now) {
-  const dt = Math.min(1 / 30, (now - prevT) / 1000); prevT = now;
+  const dt = clamp((now - prevT) / 1000, 0, 1 / 30); prevT = Math.max(prevT, now); // nunca tempo negativo
   pollPads(); netTick(dt);
   if (state === 'countdown') {
     const prev = Math.ceil(countT); countT -= dt; const cur = Math.ceil(countT);

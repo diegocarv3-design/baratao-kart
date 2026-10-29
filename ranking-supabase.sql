@@ -8,7 +8,7 @@ create table if not exists public.kart_ranking (
   nome       text not null check (char_length(nome) between 2 and 20),
   setor      text not null default '' check (char_length(setor) <= 24),
   pista      text not null check (pista in ('horti', 'frio')),
-  tempo      numeric(7,2) not null check (tempo between 30 and 900), -- segundos; barra tempos impossíveis
+  tempo      numeric(7,2) not null check (tempo between 60 and 900), -- segundos; 3 voltas em menos de 1 min é impossível
   piloto     text not null default '' check (char_length(piloto) <= 20),
   criado_em  timestamptz not null default now()
 );
