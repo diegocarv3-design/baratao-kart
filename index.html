@@ -1181,8 +1181,8 @@ function openPeerChannel(code, host, onMsg) {
       fail(new Error(e.type === 'unavailable-id' ? 'código em uso' : e.type === 'peer-unavailable' ? 'sala não encontrada, confira o código' : 'falha na conexão (' + e.type + ')'));
     });
     if (host) {
-      peer.on('open', () => { clearTimeout(t); ok(api); });
-      peer.on('connection', c => { conns.add(c); wire(c); });
+      peer.on('open', () => { clearTimeout(t); api.id = peer.id; ok(api); }); // o anfitrião usa o id da sala, que só ele tem no servidor
+      peer.on('connection', c => { if (c.peer === room || /^ia/.test(c.peer)) return c.close(); conns.add(c); wire(c); });
     } else peer.on('open', () => {
       const c = peer.connect(room, { serialization: 'json', reliable: true });
       c.on('open', () => { clearTimeout(t); conns.add(c); wire(c); api.id = peer.id; ok(api); });
@@ -1328,7 +1328,7 @@ async function netConnect(code, host) {
       roster: host ? [{ id: '', name, ch: chosen[0] }] : [], track: chosenTrack, joinAt: performance.now(), lastHi: performance.now(), racing: false });
     if (host) NET.roster[0].id = NET.id;
     NET.ch = await openChannel(code, host, onNet); NET.on = true;
-    if (!host && NET.ch.id) NET.id = NET.ch.id; // no PeerJS, o id do jogador é o da conexão (o anfitrião confere)
+    if (NET.ch.id) { NET.id = NET.ch.id; if (host) NET.roster[0].id = NET.id; } // no PeerJS, o id é o da conexão: ninguém consegue copiar
     if (host) { broadcastLobby(); oMsg('Passe o código da sala para os colegas. Com 2 ou mais pilotos, toque em COMEÇAR.'); }
     else { netSend('hi', { name, ch: chosen[0] }); oMsg('Procurando a sala...'); }
     renderLobby();
