@@ -2,7 +2,9 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>Baratão Kart GP</title>
 <!-- prévia do link (WhatsApp, redes sociais) -->
 <meta name="description" content="Escolha seu piloto e corra sozinho, em dupla ou online com os colegas do Baratão.">
@@ -79,6 +81,15 @@ tr.me td{color:var(--yel)}
 #touch{position:absolute;inset:0;pointer-events:none}
 #touch button{position:absolute;pointer-events:auto;font-family:inherit;color:#fff;background:rgba(255,255,255,.16);border:calc(var(--u)*1) solid rgba(255,255,255,.45);border-radius:50%;width:calc(var(--u)*40);height:calc(var(--u)*40);font-size:calc(var(--u)*9);bottom:calc(var(--u)*8);touch-action:none}
 #touch button.on{background:rgba(255,210,63,.5)}
+/* aceleração automática (celular): na corrida o ACEL some e o DRIFT vai para o lugar dele */
+body.autogas.racing #tGas{display:none}
+body.autogas.racing #tDrift{right:calc(var(--u)*8)}
+/* celular em pé: pede para girar */
+#gire{position:fixed;inset:0;z-index:50;display:none;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:#1a1036;color:#ffd23f;font-size:16px;line-height:1.7;text-align:center;padding:24px}
+#gire small{color:#b9b3d6;font-size:10px}
+#gire .cel{width:46px;height:80px;border:5px solid #fff;border-radius:8px;animation:girar 1.8s ease-in-out infinite}
+@keyframes girar{0%,25%{transform:rotate(0)}60%,100%{transform:rotate(-90deg)}}
+@media (orientation:portrait){body.touch #gire{display:flex}}
 #tL{left:calc(var(--u)*8)}#tR{left:calc(var(--u)*54)}
 #tGas{right:calc(var(--u)*8);font-size:calc(var(--u)*5)!important}
 #tDrift{right:calc(var(--u)*54);font-size:calc(var(--u)*5)!important}
@@ -92,6 +103,7 @@ tr.me td{color:var(--yel)}
 </style>
 </head>
 <body>
+<div id="gire"><div class="cel"></div>GIRE O CELULAR<br>PARA JOGAR<small>Toque aqui para tela cheia.<br>No iPhone, desligue o bloqueio de rotação.</small></div>
 <div id="wrap">
   <canvas id="game"></canvas>
   <div class="hud" id="hud0">
@@ -641,7 +653,8 @@ const held = (pi, act) => binds(pi)[act].some(c => keys[c]) || (pi === 0 && huma
 function readInput(pi) {
   if (NET.paused) return { throttle: 0, steer: 0, drift: false };
   const h = a => held(pi, a);
-  return { throttle: h('gas') ? 1 : h('brake') ? -1 : 0, steer: clamp((h('right') ? 1 : 0) - (h('left') ? 1 : 0) + padAxis(pi), -1, 1), drift: h('drift') };
+  const gas = h('gas') || (autoGas && pi === 0 && humans.length < 2 && state === 'race' && !h('brake'));
+  return { throttle: gas ? 1 : h('brake') ? -1 : 0, steer: clamp((h('right') ? 1 : 0) - (h('left') ? 1 : 0) + padAxis(pi), -1, 1), drift: h('drift') };
 }
 function aiCtrl(k, dt) {
   k.aiOffT -= dt;
@@ -1076,7 +1089,34 @@ TRACKS.forEach((tk, i) => {
 });
 
 const isTouch = matchMedia('(pointer:coarse)').matches || 'ontouchstart' in window;
-if (isTouch) $('#help').innerHTML = 'Use os botões na tela. Segure <em>DRIFT</em> numa curva e solte para ganhar <em>TURBO</em>.<br>Passe nas <em>sacolas ?</em> e toque em <em>ITEM</em>.<br>Acelere no <em>1</em> para largar com turbo. Melhor com o celular na horizontal.';
+// celular: aceleração automática (padrão) ou manual, guardada no aparelho
+let autoGas = isTouch && (() => { try { return localStorage.getItem('baratao-kart-acel'); } catch (e) { return null; } })() !== 'manual';
+const touchHelp = () => 'Use os botões na tela. Segure <em>DRIFT</em> numa curva e solte para ganhar <em>TURBO</em>.<br>Passe nas <em>sacolas ?</em> e toque em <em>ITEM</em>.<br>' +
+  (autoGas ? 'O kart <em>acelera sozinho</em>: use o <em>FREIO</em>. Toque <em>ACEL</em> no <em>1</em> para largar com turbo.' : 'Segure <em>ACEL</em> para acelerar. Acelere no <em>1</em> para largar com turbo.');
+if (isTouch) {
+  document.body.classList.add('touch'); document.body.classList.toggle('autogas', autoGas);
+  $('#help').innerHTML = touchHelp();
+  const b = document.createElement('button'); b.className = 'btn alt tab'; b.id = 'bAcel';
+  const rot = () => { b.textContent = autoGas ? '⚡ ACEL: AUTO' : '✋ ACEL: MANUAL'; };
+  b.onclick = () => {
+    autoGas = !autoGas; lsSet('baratao-kart-acel', autoGas ? 'auto' : 'manual'); rot();
+    document.body.classList.toggle('autogas', autoGas); $('#help').innerHTML = touchHelp(); initAudio(); sfx.click();
+  };
+  rot(); $('#modes').appendChild(b);
+  document.querySelectorAll('.mode')[1].classList.add('hidden'); // 2 jogadores na mesma tela é só no teclado
+}
+// celular: tela cheia e trava na horizontal (Android); no iPhone fica o aviso de girar
+function paisagem() {
+  if (!isTouch) return;
+  const lock = () => { try { const o = screen.orientation; if (o && o.lock) o.lock('landscape').catch(() => {}); } catch (e) {} };
+  const el = document.documentElement;
+  if (!document.fullscreenElement && el.requestFullscreen) el.requestFullscreen({ navigationUI: 'hide' }).then(lock, () => {}); else lock();
+}
+$('#gire').addEventListener('click', paisagem);
+// virou o celular em pé no meio da corrida: pausa (online só abre o menu, como em qualquer pausa)
+matchMedia('(orientation: portrait)').addEventListener('change', e => {
+  if (e.matches && isTouch && (state === 'race' || state === 'countdown') && !NET.paused) togglePause();
+});
 const HELP1 = $('#help').innerHTML;
 const HELP2 = '<em>J1 (em cima)</em>: W A S D · <em>ESPAÇO</em> drift · <em>E</em> item · <em>Q</em> buzina<br>' +
   '<em>J2 (embaixo)</em>: setas · <em>SHIFT dir.</em> drift · <em>ENTER</em> item · <em>BACKSPACE</em> buzina<br>' +
@@ -1454,8 +1494,8 @@ $('#bOnline').onclick = () => {
   showPanel('online'); renderLobby();
   oMsg(`Piloto: ${CHARS[chosen[0]].name} · Pista: ${TRACKS[chosenTrack].name} (troque no menu antes de entrar)`);
 };
-$('#bCreate').onclick = netCreate;
-$('#bJoin').onclick = netJoin;
+$('#bCreate').onclick = () => { paisagem(); netCreate(); };
+$('#bJoin').onclick = () => { paisagem(); netJoin(); };
 $('#bStartNet').onclick = () => { sfx.click(); hostStart(); };
 // convite: link com o código da sala já preenchido (abre a tela de compartilhar do celular ou copia)
 $('#bInvite').onclick = async () => {
@@ -1473,7 +1513,7 @@ $('#bNetBack').onclick = () => { sfx.click(); if (NET.on) { netLeave(); renderLo
 function setRaceUi(on) { $('#touch').classList.toggle('hidden', !(on && isTouch)); $('#bPause').classList.toggle('hidden', !on); }
 
 function startRace() {
-  initAudio(); sfx.click(); clearTimeout(resultsTimer);
+  initAudio(); sfx.click(); clearTimeout(resultsTimer); paisagem();
   for (const k in touch) touch[k] = false;
   setLayout(numPlayers); useTrack(chosenTrack); newRace(chosen.slice(0, numPlayers), false); showPanel(null); setRaceUi(true);
   state = 'countdown'; countT = 3; flashAll('3'); sfx.count();
@@ -1586,6 +1626,7 @@ let prevT = performance.now();
 function frame(now) {
   const dt = clamp((now - prevT) / 1000, 0, 1 / 30); prevT = Math.max(prevT, now); // nunca tempo negativo
   pollPads(); netTick(dt);
+  if (isTouch) document.body.classList.toggle('racing', state === 'race');
   if (state === 'countdown') {
     const prev = Math.ceil(countT); countT -= dt; const cur = Math.ceil(countT);
     humans.forEach((k, pi) => { if (k.gasAt < 0 && readInput(pi).throttle > 0) k.gasAt = countT; }); // quando acelerou pela 1ª vez
