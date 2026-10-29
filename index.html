@@ -141,7 +141,7 @@ tr.me td{color:var(--yel)}
     </div>
     <div id="oRoom" class="hidden"><div id="oCode" class="logo"></div><div id="lobby" class="help"></div></div>
     <div id="oMsg" class="small"></div>
-    <div class="row"><button class="btn hidden" id="bStartNet">COMEÇAR CORRIDA</button><button class="btn alt" id="bNetBack">VOLTAR</button></div>
+    <div class="row"><button class="btn hidden" id="bStartNet">COMEÇAR CORRIDA</button><button class="btn alt hidden" id="bInvite">📤 CONVIDAR</button><button class="btn alt" id="bNetBack">VOLTAR</button></div>
   </div>
 
   <div id="ranking" class="panel hidden">
@@ -1090,7 +1090,6 @@ function showPanel(id) { for (const p of ['menu', 'pause', 'results', 'ranking',
 // todos os celulares (rode ranking-supabase.sql no SQL Editor) e as salas online passam a funcionar.
 const SUPABASE = { url: 'https://xrnnkgcskgijjkkoygnz.supabase.co', anonKey: 'sb_publishable_QSXnL3Ap0UvJxaMbkUJnTw_G_aBTzTt' }; // chave pública (anon): feita para ficar no navegador; a segurança vem do RLS
 const online = () => !!(SUPABASE.url && SUPABASE.anonKey);
-const SALAS_SUPABASE = false; // true = salas pelo Supabase Realtime (não confere o remetente como o PeerJS)
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const LKEY = 'baratao-kart-ranking';
 const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
@@ -1173,43 +1172,56 @@ function loadLib(url, name) { // as bibliotecas só são baixadas quando alguém
 }
 let sbClient = null;
 // PeerJS: o anfitrião vira o "ponto de encontro" da sala e repassa o que cada um manda para os outros
-function openPeerChannel(code, host, onMsg) {
+// Salas: caminho direto entre aparelhos (PeerJS) e, se a rede bloquear, reserva pelo servidor do Supabase.
+// O anfitrião fica nos dois ao mesmo tempo e repassa as mensagens de um lado para o outro.
+function openPeerChannel(code, host, onMsg, onWait) {
   return loadLib('https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js', 'Peer').then(Peer => new Promise((ok, fail) => {
     const room = 'baratao-kart-v1-' + code, conns = new Set(), peer = host ? new Peer(room) : new Peer();
-    const api = { send: m => { for (const c of conns) if (c.open) c.send(m); }, close: () => peer.destroy() };
-    const t = setTimeout(() => { peer.destroy(); fail(new Error('o servidor não respondeu')); }, 12000);
+    let done = false, relay = null, tries = 0, connT = 0;
+    const api = { conns, send: m => { for (const c of conns) if (c.open) c.send(m); }, close: () => { done = true; peer.destroy(); }, setRelay: f => { relay = f; } };
+    const finish = err => {
+      if (done) return; done = true; clearTimeout(t); clearTimeout(connT);
+      if (err) { peer.destroy(); fail(err); } else ok(api);
+    };
+    // convidado espera até 40 s: o anfitrião pode estar no WhatsApp mandando o código
+    const t = setTimeout(() => finish(new Error(tries ? 'sala não encontrada, confira o código' : 'o servidor não respondeu')), host ? 12000 : 40000);
     const wire = c => {
       c.on('data', m => {
-        if (host) { // cada conexão fica presa ao primeiro remetente: ninguém fala em nome de outro
+        if (host) {
           if (!m || typeof m !== 'object') return;
           m.f = c.peer; // quem fala é decidido pela conexão (id dado pelo servidor do PeerJS), não pelo que a mensagem diz
           for (const o of conns) if (o !== c && o.open) o.send(m);
+          if (relay) relay(m);
         }
         onMsg(m);
       });
       c.on('close', () => conns.delete(c));
     };
+    // celular: ao voltar de outro app a ligação com o servidor pode ter caído; reconecta mantendo o mesmo código
+    const revive = () => { if (!peer.destroyed && peer.disconnected) try { peer.reconnect(); } catch (e) {} };
+    peer.on('disconnected', () => setTimeout(revive, 1000));
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) revive(); });
+    const tryConnect = () => {
+      if (done) return;
+      const c = peer.connect(room, { serialization: 'json', reliable: true });
+      // a sala existe mas a ligação direta não abre: a rede está bloqueando (vai para a reserva)
+      connT = setTimeout(() => { if (!c.open) { try { c.close(); } catch (e) {} finish(Object.assign(new Error('a rede bloqueou a ligação direta'), { blocked: true })); } }, 9000);
+      c.on('open', () => { clearTimeout(connT); conns.add(c); wire(c); api.id = peer.id; finish(); });
+    };
     peer.on('error', e => {
-      clearTimeout(t);
-      fail(new Error(e.type === 'unavailable-id' ? 'código em uso' : e.type === 'peer-unavailable' ? 'sala não encontrada, confira o código' : 'falha na conexão (' + e.type + ')'));
+      if (!host && !done && e.type === 'peer-unavailable') { // sala ainda não apareceu: tenta de novo
+        clearTimeout(connT); onWait && onWait(++tries); setTimeout(tryConnect, 3000); return;
+      }
+      if (done) return; // depois de conectado, quem cuida de quedas é o aviso de presença do lobby
+      finish(Object.assign(new Error(e.type === 'unavailable-id' ? 'código em uso' : 'falha na conexão (' + e.type + ')'), { blocked: e.type !== 'unavailable-id' }));
     });
     if (host) {
-      peer.on('open', () => { clearTimeout(t); api.id = peer.id; ok(api); }); // o anfitrião usa o id da sala, que só ele tem no servidor
+      peer.on('open', () => { api.id = peer.id; finish(); }); // o anfitrião usa o id da sala, que só ele tem no servidor
       peer.on('connection', c => { if (c.peer === room || /^ia/.test(c.peer)) return c.close(); conns.add(c); wire(c); });
-    } else peer.on('open', () => {
-      const c = peer.connect(room, { serialization: 'json', reliable: true });
-      c.on('open', () => { clearTimeout(t); conns.add(c); wire(c); api.id = peer.id; ok(api); });
-    });
+    } else peer.on('open', tryConnect);
   }));
 }
-async function openChannel(code, host, onMsg) {
-  // salas sempre pelo PeerJS (testado e com o anfitrião conferindo quem fala); o Supabase fica só com o ranking
-  if (!NET_LOCAL && !SALAS_SUPABASE) return openPeerChannel(code, host, onMsg);
-  if (NET_LOCAL) {
-    const bc = new BroadcastChannel('baratao-kart-' + code);
-    bc.onmessage = e => onMsg(e.data);
-    return { send: m => bc.postMessage(m), close: () => bc.close() };
-  }
+async function openSbChannel(code, onMsg) {
   const lib = await loadLib('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.80.0/dist/umd/supabase.min.js', 'supabase');
   sbClient = sbClient || lib.createClient(SUPABASE.url, SUPABASE.anonKey, { auth: { persistSession: false }, realtime: { params: { eventsPerSecond: 30 } } });
   const ch = sbClient.channel('baratao-kart-' + code, { config: { broadcast: { self: false } } });
@@ -1222,6 +1234,30 @@ async function openChannel(code, host, onMsg) {
     });
   });
   return { send: m => ch.send({ type: 'broadcast', event: 'm', payload: m }), close: () => sbClient.removeChannel(ch) };
+}
+async function openChannel(code, host, onMsg, onWait) {
+  if (NET_LOCAL) {
+    const bc = new BroadcastChannel('baratao-kart-' + code);
+    bc.onmessage = e => onMsg(e.data);
+    return { send: m => bc.postMessage(m), close: () => bc.close() };
+  }
+  const reserva = online();
+  if (host) {
+    let p2p = null, sb = null, sbAt = -1e9;
+    try { p2p = await openPeerChannel(code, true, onMsg); } catch (e) { if (!e.blocked || !reserva) throw e; }
+    // a reserva só gasta mensagens do Supabase enquanto alguém está nela (quem entra por ela avisa a cada 3 s)
+    const sbVivo = () => sb && performance.now() - sbAt < 20000;
+    if (reserva) try {
+      sb = await openSbChannel(code, m => {
+        if (!m || typeof m.f !== 'string' || m.f === NET.id || /^ia/.test(m.f) || (p2p && [...p2p.conns].some(c => c.peer === m.f))) return;
+        sbAt = performance.now(); if (p2p) p2p.send(m); onMsg(m);
+      });
+    } catch (e) { if (!p2p) throw e; }
+    if (p2p) p2p.setRelay(m => { if (sbVivo()) sb.send(m); });
+    return { id: p2p && p2p.id, send: m => { if (p2p) p2p.send(m); if (sbVivo()) sb.send(m); }, close: () => { if (p2p) p2p.close(); if (sb) sb.close(); } };
+  }
+  try { return await openPeerChannel(code, false, onMsg, onWait); }
+  catch (e) { if (!e.blocked || !reserva) throw e; onWait && onWait(-1); return openSbChannel(code, onMsg); }
 }
 const netSend = (t, d = {}) => { if (NET.ch) try { NET.ch.send({ t, f: NET.id, ...d }); } catch (e) {} };
 const kartBy = id => karts.find(k => k.netId === id);
@@ -1284,7 +1320,8 @@ function onNet(m) {
       NET.hostId = m.f; NET.gotLobby = true; NET.roster = m.roster; NET.track = m.track;
       if (!NET.racing) {
         renderLobby();
-        if (!m.roster.some(p => p.id === NET.id)) oMsg(m.racing ? 'Corrida em andamento: você entra na próxima.' : 'A sala está cheia (4 pilotos).');
+        if (!m.roster.some(p => p.id === NET.id)) oMsg(m.racing ? 'Corrida em andamento: você entra na próxima.' : m.roster.length >= 4 ? 'A sala está cheia (4 pilotos).' : 'Entrando na sala...');
+        else if ($('#oMsg').textContent.startsWith('Entrando')) oMsg('Você entrou! Esperando o anfitrião começar a corrida.');
         else if ($('#oMsg').textContent.startsWith('Procurando')) oMsg('Você entrou! Esperando o anfitrião começar a corrida.');
       }
       break;
@@ -1324,6 +1361,7 @@ function renderLobby() {
   const inRoom = NET.on;
   $('#oForm').classList.toggle('hidden', inRoom); $('#oRoom').classList.toggle('hidden', !inRoom);
   $('#bStartNet').classList.toggle('hidden', !(inRoom && NET.host));
+  $('#bInvite').classList.toggle('hidden', !inRoom);
   $('#bNetBack').textContent = inRoom ? 'SAIR DA SALA' : 'VOLTAR';
   if (!inRoom) return;
   $('#oCode').innerHTML = `SALA ${esc(NET.code)}<span>${esc(TRACKS[NET.track].name)}</span>`;
@@ -1341,7 +1379,8 @@ async function netConnect(code, host) {
     Object.assign(NET, { id: Math.random().toString(36).slice(2, 10), code, host, name, hostId: '', gotLobby: host, seen: {},
       roster: host ? [{ id: '', name, ch: chosen[0] }] : [], track: chosenTrack, joinAt: performance.now(), lastHi: performance.now(), racing: false });
     if (host) NET.roster[0].id = NET.id;
-    NET.ch = await openChannel(code, host, onNet); NET.on = true;
+    NET.ch = await openChannel(code, host, onNet, n => oMsg(n < 0 ? 'A rede bloqueou a ligação direta. Entrando pelo servidor...' : 'Procurando a sala... Quem criou precisa estar com o jogo aberto na tela.'));
+    NET.on = true; NET.joinAt = performance.now();
     if (NET.ch.id) { NET.id = NET.ch.id; if (host) NET.roster[0].id = NET.id; } // no PeerJS, o id é o da conexão: ninguém consegue copiar
     if (host) { broadcastLobby(); oMsg('Passe o código da sala para os colegas. Com 2 ou mais pilotos, toque em COMEÇAR.'); }
     else { netSend('hi', { name, ch: chosen[0] }); oMsg('Procurando a sala...'); }
@@ -1397,17 +1436,19 @@ setInterval(() => {
   const now = performance.now();
   if (NET.host && !NET.racing) {
     const before = NET.roster.length;
-    NET.roster = NET.roster.filter(p => p.id === NET.id || now - (NET.seen[p.id] || now) < 10000);
+    NET.roster = NET.roster.filter(p => p.id === NET.id || now - (NET.seen[p.id] || now) < 20000);
     if (NET.roster.length !== before) renderLobby();
     if (now - NET.lastHi > 3000) { NET.lastHi = now; broadcastLobby(); }
   }
   if (!NET.host && !NET.racing) {
     if (now - NET.lastHi > 3000) { NET.lastHi = now; netSend('hi', { name: NET.name, ch: chosen[0] }); }
-    if (!NET.gotLobby && now - NET.joinAt > 7000) netLeave('Sala não encontrada. Confira o código.');
-    else if (NET.gotLobby && now - (NET.seen[NET.hostId] || 0) > 12000) netLeave('Perdemos a conexão com o anfitrião.');
+    if (!NET.gotLobby && now - NET.joinAt > 15000) netLeave('Sala não encontrada. Confira o código e peça para quem criou deixar o jogo aberto na tela.');
+    else if (NET.gotLobby && now - (NET.seen[NET.hostId] || 0) > 30000) netLeave('Perdemos a conexão com o anfitrião.');
   }
 }, 1000);
 addEventListener('pagehide', () => { if (NET.on) netSend('bye'); });
+// ao voltar de outro app (ex.: WhatsApp), ninguém é tirado da sala só porque o relógio ficou parado
+document.addEventListener('visibilitychange', () => { if (!document.hidden && NET.on) { const now = performance.now(); for (const id in NET.seen) NET.seen[id] = now; NET.lastHi = 0; } });
 $('#bOnline').onclick = () => {
   initAudio(); sfx.click(); $('#iNick').value = $('#iNick').value || (lsGet('baratao-kart-nome') || '').slice(0, 12);
   showPanel('online'); renderLobby();
@@ -1416,6 +1457,17 @@ $('#bOnline').onclick = () => {
 $('#bCreate').onclick = netCreate;
 $('#bJoin').onclick = netJoin;
 $('#bStartNet').onclick = () => { sfx.click(); hostStart(); };
+// convite: link com o código da sala já preenchido (abre a tela de compartilhar do celular ou copia)
+$('#bInvite').onclick = async () => {
+  sfx.click();
+  const url = location.origin + location.pathname + '?sala=' + NET.code, text = `🏁 Corre comigo no Baratão Kart! Sala ${NET.code}`;
+  const depois = ' Volte para esta tela e deixe o jogo aberto até todos entrarem.';
+  try {
+    if (navigator.share) { await navigator.share({ title: 'Baratão Kart', text, url }); oMsg('Convite enviado!' + depois); return; }
+  } catch (e) { if (e.name === 'AbortError') return; }
+  try { await navigator.clipboard.writeText(text + ': ' + url); oMsg('Convite copiado! Cole no WhatsApp.' + depois); }
+  catch (e) { oMsg('Mande este link: ' + url); }
+};
 $('#bNetBack').onclick = () => { sfx.click(); if (NET.on) { netLeave(); renderLobby(); oMsg(''); } else showPanel('menu'); };
 
 function setRaceUi(on) { $('#touch').classList.toggle('hidden', !(on && isTouch)); $('#bPause').classList.toggle('hidden', !on); }
@@ -1590,6 +1642,12 @@ if (location.hash === '#autoteste') {
   document.body.insertAdjacentHTML('beforeend', '<pre id="rep">' + rep.join('\n') + '</pre>');
 }
 toMenu();
+// link de convite (?sala=1234): abre a tela online com o código preenchido
+const salaConvite = (location.search.match(/[?&]sala=(\d{4})(?!\d)/) || [])[1];
+if (salaConvite) {
+  $('#iNick').value = (lsGet('baratao-kart-nome') || '').slice(0, 12); $('#iCode').value = salaConvite;
+  showPanel('online'); renderLobby(); oMsg(`Você foi convidado para a sala ${salaConvite}! Digite seu nome e toque em ENTRAR.`);
+}
 if (location.hash === '#corrida') startRace();       // atalho: abre direto na largada
 if (location.hash === '#frio') { chosenTrack = 1; startRace(); }
 requestAnimationFrame(frame);
