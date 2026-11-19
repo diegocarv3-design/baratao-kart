@@ -1,0 +1,20 @@
+# Despertador do banco: o plano grátis do Supabase pausa o projeto após ~7 dias sem acesso.
+# A cada 3 dias esta tarefa faz uma leitura simples do ranking para manter o projeto ativo.
+# A chave usada é a pública (anon) que já está no index.html; ela só permite ler/inserir no ranking.
+name: Despertador do Supabase
+on:
+  schedule:
+    - cron: '0 12 */3 * *'   # a cada 3 dias, 12h UTC (8h em Manaus)
+  workflow_dispatch:          # botão "Run workflow" para testar na hora
+jobs:
+  acordar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ler o ranking
+        run: |
+          URL=$(grep -o "url: 'https://[a-z0-9]*\.supabase\.co'" index.html | head -1 | cut -d"'" -f2)
+          KEY=$(grep -o "anonKey: '[^']*'" index.html | head -1 | cut -d"'" -f2)
+          CODE=$(curl -s -o /dev/null -w "%{http_code}" "$URL/rest/v1/kart_ranking?select=id&limit=1" -H "apikey: $KEY" -H "Authorization: Bearer $KEY")
+          echo "Supabase respondeu HTTP $CODE"
+          test "$CODE" = "200"
