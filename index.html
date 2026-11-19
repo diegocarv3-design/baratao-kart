@@ -93,11 +93,28 @@ body.autogas.racing #tDrift{right:calc(var(--u)*8)}
 #tL{left:calc(var(--u)*8)}#tR{left:calc(var(--u)*54)}
 #tGas{right:calc(var(--u)*8);font-size:calc(var(--u)*5)!important}
 #tDrift{right:calc(var(--u)*54);font-size:calc(var(--u)*5)!important}
-#tBrake,#tItem{bottom:calc(var(--u)*54)!important;width:calc(var(--u)*28)!important;height:calc(var(--u)*28)!important;font-size:calc(var(--u)*4)!important}
+#tBrake,#tItem,#tJump{bottom:calc(var(--u)*54)!important;width:calc(var(--u)*28)!important;height:calc(var(--u)*28)!important;font-size:calc(var(--u)*4)!important}
 #tBrake{right:calc(var(--u)*8)}#tItem{right:calc(var(--u)*60);background:rgba(214,40,40,.45)!important}
+#tJump{right:calc(var(--u)*92);background:rgba(76,201,255,.4)!important}
+/* com aceleração automática, o PULO fica grande no lugar onde o DRIFT estava */
+body.autogas.racing #tJump{right:calc(var(--u)*54);bottom:calc(var(--u)*8)!important;width:calc(var(--u)*40)!important;height:calc(var(--u)*40)!important;font-size:calc(var(--u)*5)!important}
 #tHorn{left:calc(var(--u)*8);bottom:calc(var(--u)*54)!important;width:calc(var(--u)*28)!important;height:calc(var(--u)*28)!important;font-size:calc(var(--u)*3.6)!important}
 #bRescue{position:absolute;left:50%;top:68%;transform:translateX(-50%);pointer-events:auto;font-family:inherit;font-size:calc(var(--u)*5.4);background:var(--yel);color:var(--ink);border:none;border-bottom:calc(var(--u)*1.4) solid #b38f00;border-radius:calc(var(--u)*3);padding:calc(var(--u)*3) calc(var(--u)*6);animation:blink .8s steps(2) infinite}
-#bPause{position:absolute;right:calc(var(--u)*8);top:calc(var(--u)*30);pointer-events:auto;font-family:inherit;font-size:calc(var(--u)*5);background:rgba(0,0,0,.4);color:#fff;border:1px solid #fff5;border-radius:4px;padding:calc(var(--u)*2) calc(var(--u)*3)}
+#bPause{position:absolute;left:calc(50% - var(--u)*46);top:calc(var(--u)*7);pointer-events:auto;font-family:inherit;font-size:calc(var(--u)*5);background:rgba(0,0,0,.4);color:#fff;border:1px solid #fff5;border-radius:4px;padding:calc(var(--u)*2) calc(var(--u)*3)}
+/* celular: botões maiores, longe do entalhe da câmera, e sem faixas pretas */
+body.touch #wrap{transform:none}
+body.touch #touch button{width:calc(var(--u)*50);height:calc(var(--u)*50);bottom:calc(var(--u)*6)}
+body.touch #tL{left:calc(var(--u)*6 + env(safe-area-inset-left))}body.touch #tR{left:calc(var(--u)*60 + env(safe-area-inset-left))}
+body.touch #tGas,body.touch.autogas.racing #tDrift{right:calc(var(--u)*6 + env(safe-area-inset-right))}
+body.touch #tDrift{right:calc(var(--u)*60 + env(safe-area-inset-right))}
+body.touch #tBrake,body.touch #tItem,body.touch #tHorn,body.touch #tJump{bottom:calc(var(--u)*62)!important;width:calc(var(--u)*34)!important;height:calc(var(--u)*34)!important}
+body.touch #tBrake{right:calc(var(--u)*6 + env(safe-area-inset-right))}body.touch #tItem{right:calc(var(--u)*46 + env(safe-area-inset-right));font-size:calc(var(--u)*5)!important}
+body.touch #tHorn{left:calc(var(--u)*6 + env(safe-area-inset-left))}
+body.touch #tJump{right:calc(var(--u)*86 + env(safe-area-inset-right));font-size:calc(var(--u)*5)!important}
+body.touch.autogas.racing #tJump{right:calc(var(--u)*60 + env(safe-area-inset-right));bottom:calc(var(--u)*6)!important;width:calc(var(--u)*50)!important;height:calc(var(--u)*50)!important;font-size:calc(var(--u)*6)!important}
+body.touch #bPause{left:calc(50% - var(--u)*52);font-size:calc(var(--u)*7);padding:calc(var(--u)*3) calc(var(--u)*5)}
+body.touch .hLap,body.touch .hTime{left:calc(var(--u)*8 + env(safe-area-inset-left))}
+body.touch .hPos{right:calc(var(--u)*8 + env(safe-area-inset-right))}
 #oForm{display:flex;flex-direction:column;gap:calc(var(--u)*4);align-items:center}
 #rep{position:absolute;left:0;top:0;background:#000;color:#0f0;font:12px monospace;white-space:pre-wrap;z-index:9;max-width:100%}
 </style>
@@ -114,7 +131,7 @@ body.autogas.racing #tDrift{right:calc(var(--u)*8)}
     <button id="tL" data-k="left">◀</button><button id="tR" data-k="right">▶</button>
     <button id="tDrift" data-k="drift">DRIFT</button><button id="tGas" data-k="gas">ACEL</button>
     <button id="tBrake" data-k="brake">FREIO</button><button id="tItem" data-k="item">ITEM</button>
-    <button id="tHorn" data-k="horn">BI-BI</button>
+    <button id="tHorn" data-k="horn">BI-BI</button><button id="tJump" data-k="jump">PULO</button>
   </div>
   <button id="bRescue" class="hidden">VOLTAR À PISTA (T)</button>
   <button id="bPause" class="hidden">II</button>
@@ -125,7 +142,7 @@ body.autogas.racing #tDrift{right:calc(var(--u)*8)}
     <div class="cards" id="cards"></div>
     <div class="row"><div class="row" id="modes"></div><div class="row" id="tracks"></div></div>
     <div class="row"><button class="btn" id="bGo">CORRER!</button><button class="btn alt" id="bRank">🏆 RANKING</button><button class="btn alt" id="bOnline">🌐 ONLINE</button></div>
-    <div class="help" id="help"><em>↑</em> acelera · <em>↓</em> freia · <em>← →</em> vira · <em>X</em> usa item · <em>H</em> buzina · <em>T</em> volta à pista · <em>P</em> pausa · <em>R</em> reinicia · <em>M</em> música<br>
+    <div class="help" id="help"><em>↑</em> acelera · <em>↓</em> freia · <em>← →</em> vira · <em>X</em> usa item · <em>C</em> pula · <em>H</em> buzina · <em>T</em> volta à pista · <em>P</em> pausa · <em>R</em> reinicia · <em>M</em> música<br>
       Segure <em>ESPAÇO</em> na curva para dar <em>DRIFT</em> e solte para ganhar <em>TURBO</em>. Passe nas <em>sacolas ?</em> para pegar itens.<br>
       Dica: acelere quando aparecer o <em>1</em> para largar com turbo. Cedo demais, o motor afoga!</div>
   </div>
@@ -174,8 +191,8 @@ const TAU = Math.PI * 2;
 const angDiff = (a, b) => { let d = (a - b) % TAU; if (d > Math.PI) d -= TAU; if (d < -Math.PI) d += TAU; return d; };
 function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 
-// Resolução interna "retrô": tudo é desenhado em 384x216 e ampliado.
-const W = 384, H = 216, CAMH = 17, CAMDIST = 34;
+// Resolução interna "retrô": tudo é desenhado em 384x216 e ampliado (no celular a largura cresce até preencher a tela).
+let W = 384; const H = 216, CAMH = 17, CAMDIST = 34;
 const cv = $('#game'), ctx = cv.getContext('2d');
 cv.width = W; cv.height = H;
 // 1 jogador: tela cheia · 2 jogadores: cada um vê meia tela, com a câmera mais "aberta" (FOCAL menor)
@@ -198,20 +215,42 @@ const CHARS = [
 
 // ================= pistas =================
 // Cada pista é uma "receita": pontos de controle, cores, aderência e onde ficam turbos e sacolas.
-const TS = 2048, RW = 86, LAPS = 3;
+let TS = 2048; // tamanho do mapa: muda por pista (Manaus é maior)
+const RW = 86, LAPS = 3;
+let TEX_EXTERNA = false; // true quando o visual novo pinta o chão (aí o desenho antigo nem é feito)
+// rampas (salto) e lombadas: tamanho em unidades do mapa; GRAV puxa o kart de volta ao chão
+const RAMP_L = 30, RAMP_W = 44, RAMP_H = 9, BUMP_H = 1.6, GRAV = 420;
 const TRACKS = [
-  { id: 'horti', name: 'Pista do Hortifruti', seed: 2026, grip: 14, offMul: .42, aiCurv: .32,
+  { id: 'horti', name: 'Pista do Hortifruti', seed: 2026, grip: 14, offMul: .42, aiCurv: .2,
     cp: [[300,1300],[300,900],[430,470],[850,300],[1250,430],[1320,820],[1020,1030],[1060,1300],[1480,1260],[1740,900],[1820,1480],[1520,1800],[900,1810],[340,1720]],
     pads: [[640,380,-18],[1270,1280,16],[1200,1805,-14]], boxes: [[1100,390],[1050,1180],[700,1810]],
+    bumps: [[300,1070],[300,1030],[1620,1080]], ramps: [[1000,1810,0]],
     text: ['BARATÃO', 650, 1170, 104], board: '#d62828', scen: ['tree', 'crate', 'board'], sky: 'city',
     col: { a: '#3d9a3c', b: '#46a845', sp: ['#358a34', '#56b852'], flowers: true, shoulder: '#b98e55', curbA: '#ffffff', curbB: '#d62828',
            road: '#56565e', road2: '#5e5e67', line: '#e8e8e8', out: [0x2c, 0x6e, 0x2a], txt: '#d62828', sky0: '#3fa7f5', sky1: '#bfe6ff', fog: '191,230,255' } },
-  { id: 'frio', name: 'Câmara Fria ❄', seed: 1818, grip: 3.2, offMul: .5, aiCurv: .5, snow: true,
+  { id: 'frio', name: 'Câmara Fria ❄', seed: 1818, grip: 3.2, offMul: .5, aiCurv: .28, snow: true,
     cp: [[1024,1750],[600,1750],[300,1500],[300,1000],[500,700],[400,400],[800,250],[1100,500],[1000,850],[1300,1000],[1650,700],[1800,1100],[1700,1600],[1400,1780]],
     pads: [[300,1250,14],[950,330,-14],[1760,1350,0]], boxes: [[820,1750],[450,560],[1480,860]],
+    bumps: [[450,560],[1730,900]], ramps: [[1200,1770,0]],
     text: ['CÂMARA FRIA', 1060, 1360, 88], board: '#2f6fd6', scen: ['ice', 'box', 'board'], sky: 'freezer',
     col: { a: '#d6e6f0', b: '#e6f1f8', sp: ['#c4d9e7', '#ffffff'], flowers: false, shoulder: '#f4faff', curbA: '#ffffff', curbB: '#2f6fd6',
            road: '#86aac4', road2: '#93b6cf', line: '#ffffff', out: [0xb4, 0xc8, 0xd6], txt: '#2f6fd6', sky0: '#5f7786', sky1: '#c7d8e3', fog: '205,222,233' } },
+  // Circuito Manaus: passeio pelos pontos famosos (traçado inventado, nomes de ruas reais). Mapa 3072 (1,5x maior).
+  { id: 'manaus', name: 'Circuito Manaus', seed: 1669, ts: 3072, grip: 14, offMul: .42, aiCurv: .2, sky: 'manaus',
+    cp: [[1300,2050],[1650,2080],[1900,2250],[2050,2480],[2350,2560],[2650,2450],[2800,2150],[2750,1600],[2780,1000],[2650,600],[2250,450],[2330,850],[2150,1300],[1750,1320],[1640,920],[1600,500],[1300,620],[950,450],[600,620],[520,1000],[560,1500],[520,2000],[650,2350],[950,2550],[1150,2450],[1050,2200]],
+    pads: [[2765,1250,0],[545,1300,-12],[2200,2530,12]], boxes: [[1760,2110],[2772,1900],[1500,540],[545,1700],[1000,2530]],
+    bumps: [[1960,2350],[1120,530]], ramps: [[2775,780,0],[530,1820,0]],
+    text: ['MANAUS', 1130, 1320, 150], board: '#d62828', scen: ['palm', 'tree', 'board'],
+    // rio (Rio Negro ao sul e a oeste), trecho do Solimões no Encontro das Águas, praia da Ponta Negra e o Centro
+    agua: [[0,760],[220,860],[300,1200],[320,1700],[300,2200],[380,2520],[620,2700],[1200,2725],[2000,2705],[2600,2705],[3072,2665],[3072,3072],[0,3072]],
+    solimoes: [[2150,3072],[2260,2900],[2420,2800],[2700,2760],[3072,2700],[3072,3072]],
+    praia: [[220,860],[300,1200],[320,1700],[300,2200],[380,2520]],
+    centro: [[1150,1650],[2420,1650],[2420,300],[3072,300],[3072,2660],[1150,2660]],
+    largo: [1450, 1880, 190],
+    marcos: [[1450, 1830, 'teatro'], [2230, 2655, 'mercado'], [1950, 2800, 'barco'], [2480, 2810, 'barco'], [2760, 2790, 'barco'], [380, 1985, 'anfiteatro'], [150, 2930, 'ponte']],
+    ruas: [[1300,2050,'AV. EDUARDO RIBEIRO',-1],[2050,2480,'PORTO DE MANAUS',1],[2650,2450,'ENCONTRO DAS ÁGUAS',1],[2750,1700,'AV. CONSTANTINO NERY',1],[2450,520,'AV. DJALMA BATISTA',1],[560,1450,'PONTA NEGRA',-1],[950,2550,'BEIRA-RIO',1]],
+    col: { a: '#5ccf4a', b: '#4dbd3d', sp: ['#46b23a', '#7ee067'], flowers: true, shoulder: '#e6b86c', curbA: '#ffffff', curbB: '#2a9d4b',
+           road: '#4a4a58', road2: '#535366', line: '#ffffff', out: [0x35, 0x40, 0x5a], txt: '#2a9d4b', sky0: '#4cc3ff', sky1: '#c9f3ff', fog: '215,246,255' } },
 ];
 const cr = (a, b, c, d, t) => 0.5 * ((2 * b) + (-a + c) * t + (2 * a - 5 * b + 4 * c - d) * t * t + (-a + 3 * b - 3 * c + d) * t * t * t);
 function buildPath(CP) {
@@ -248,7 +287,7 @@ function buildTrack(def) {
   const at = (c, i, off, fn) => { c.save(); c.translate(P[i][0] + T.NRM[i][0] * off, P[i][1] + T.NRM[i][1] * off); c.rotate(T.ANG[i]); fn(); c.restore(); };
 
   // textura do chão (o "mapa" visto de cima)
-  const tcv = document.createElement('canvas'); tcv.width = tcv.height = TS;
+  const tcv = document.createElement('canvas'); tcv.width = tcv.height = TEX_EXTERNA ? 1 : TS;
   const t = tcv.getContext('2d');
   for (let y = 0; y < TS; y += 64) for (let x = 0; x < TS; x += 64) { t.fillStyle = ((x + y) / 64) % 2 ? C.a : C.b; t.fillRect(x, y, 64, 64); }
   for (let i = 0; i < 9000; i++) { t.fillStyle = R() < .5 ? C.sp[0] : C.sp[1]; t.fillRect(R() * TS, R() * TS, 3, 3); }
@@ -273,16 +312,26 @@ function buildTrack(def) {
     t.fillStyle = '#ffd23f'; t.fillRect(-22, -13, 44, 26); t.fillStyle = '#ff7b00';
     for (let c = -16; c < 18; c += 12) { t.beginPath(); t.moveTo(c, -9); t.lineTo(c + 8, 0); t.lineTo(c, 9); t.lineTo(c + 3, 9); t.lineTo(c + 11, 0); t.lineTo(c + 3, -9); t.fill(); }
   });
-  T.tex = new Uint32Array(t.getImageData(0, 0, TS, TS).data.buffer);
+  // lombadas (faixa amarela e preta de um lado ao outro) e a sombra das rampas; o volume é desenhado depois, como sprite
+  const place = list => (list || []).map(([x, y, off = 0]) => { const i = nearestIn(P, x, y); return { i, off, x: P[i][0] + T.NRM[i][0] * off, y: P[i][1] + T.NRM[i][1] * off }; });
+  T.bumps = place(def.bumps); T.ramps = place(def.ramps);
+  for (const b of T.bumps) at(t, b.i, 0, () => { for (let y = -RW / 2 - 4, k = 0; y < RW / 2 + 4; y += 8, k++) { t.fillStyle = k % 2 ? '#1b1b1b' : '#ffd23f'; t.fillRect(-4, y, 8, 8); } });
+  for (const r of T.ramps) at(t, r.i, r.off, () => { t.fillStyle = 'rgba(0,0,0,.4)'; t.fillRect(-RAMP_L / 2, -RAMP_W / 2 - 2, RAMP_L + 8, RAMP_W + 4); });
+  T.tex = TEX_EXTERNA ? null : new Uint32Array(t.getImageData(0, 0, TS, TS).data.buffer);
   T.OUTC = (255 << 24) | (C.out[2] << 16) | (C.out[1] << 8) | C.out[0];
 
-  // máscara de física: 0 fora da pista, 1 pista, 2 turbo
+  // máscara de física: 0 fora da pista, 1 pista, 2 turbo, 3 lombada, 4 rampa
   const mcv = document.createElement('canvas'); mcv.width = mcv.height = TS;
   const m = mcv.getContext('2d'); m.fillStyle = '#000'; m.fillRect(0, 0, TS, TS); m.lineJoin = 'round';
   trace(m); m.lineWidth = RW + 12; m.strokeStyle = '#fff'; m.stroke();
   for (const [i, off] of pads) at(m, i, off, () => { m.fillStyle = '#0000ff'; m.fillRect(-22, -13, 44, 26); });
+  for (const b of T.bumps) at(m, b.i, 0, () => { m.fillStyle = '#00ff00'; m.fillRect(-4, -RW / 2 - 6, 8, RW + 12); });
+  for (const r of T.ramps) at(m, r.i, r.off, () => { m.fillStyle = '#ff00ff'; m.fillRect(-RAMP_L / 2, -RAMP_W / 2, RAMP_L, RAMP_W); });
   const mraw = m.getImageData(0, 0, TS, TS).data, mask = T.mask = new Uint8Array(TS * TS);
-  for (let i = 0; i < TS * TS; i++) { const r = mraw[i * 4], b = mraw[i * 4 + 2]; mask[i] = (b > 200 && r < 60) ? 2 : r > 100 ? 1 : 0; }
+  for (let i = 0; i < TS * TS; i++) {
+    const r = mraw[i * 4], g = mraw[i * 4 + 1], b = mraw[i * 4 + 2];
+    mask[i] = (r > 200 && b > 200 && g < 60) ? 4 : (g > 200 && r < 60 && b < 60) ? 3 : (b > 200 && r < 60) ? 2 : r > 100 ? 1 : 0;
+  }
 
   // cenário
   const sc = T.scenery = [];
@@ -329,7 +378,7 @@ function buildSky(def, R) {
   // horizonte: gira 360° junto com a câmera
   const sky = document.createElement('canvas'); sky.width = SW; sky.height = SH;
   const s = sky.getContext('2d');
-  if (def.sky === 'city') {
+  if (def.sky !== 'freezer') {
     s.fillStyle = '#fff';
     for (let i = 0; i < 14; i++) { const x = R() * SW, y = 6 + R() * 16; for (let k = 0; k < 4; k++) { s.beginPath(); s.ellipse(x + k * 9, y + (k % 2) * 3, 10, 5, 0, 0, TAU); s.fill(); } }
     s.fillStyle = '#5f9fb8'; s.beginPath(); s.moveTo(0, SH);
@@ -370,6 +419,7 @@ function buildSky(def, R) {
 const trackCache = [];
 let TR, P, N, DIR, NRM, ANG, chosenTrack = 0;
 function useTrack(i) {
+  TS = TRACKS[i].ts || 2048;
   if (!trackCache[i]) trackCache[i] = buildTrack(TRACKS[i]);
   TR = trackCache[i]; ({ P, N, DIR, NRM, ANG } = TR);
 }
@@ -437,11 +487,13 @@ function drawKartSide(c, ch, o) {
 }
 function drawKart(c, x, y, s, ch, o) {
   c.save(); c.translate(x, y); c.scale(s, s);
-  c.fillStyle = 'rgba(0,0,0,.35)'; c.beginPath(); c.ellipse(0, 0, 4.6, 1.1, 0, 0, TAU); c.fill();
-  c.translate(0, -(o.hop || 0));
-  if (o.spin) c.scale(Math.max(.3, Math.abs(Math.cos(o.spin))), 1); // rodopio: "achata" o kart para parecer que gira
-  const view = o.view || 0; // 0 costas · 1/-1 lado · 2 frente
-  if (view === 1 || view === -1) { c.scale(view, 1); drawKartSide(c, ch, o); c.restore(); return; }
+  // a sombra fica no chão e encolhe quando o kart sobe: é isso que dá a sensação de altura
+  const z = o.hop || 0, sh = 1 / (1 + z * .06);
+  c.fillStyle = `rgba(0,0,0,${(.35 * sh).toFixed(3)})`; c.beginPath(); c.ellipse(0, 0, 4.6 * sh, 1.1 * sh, 0, 0, TAU); c.fill();
+  c.translate(0, -z);
+  if (o.squash) c.scale(1 + o.squash * .3, 1 - o.squash * .3); // pouso: o kart "amassa" e volta
+  const view = o.view || 0; // 0 costas · 1/-1 lado · 2 frente (no rodopio a vista gira junto)
+  if (view === 1 || view === -1) { c.scale(view, 1); drawKartSide(c, ch, o); if (o.spin) spinStars(c, o); c.restore(); return; }
   const front = view === 2, L = front ? 0 : (o.lean || 0);
   if (o.dust) { c.fillStyle = o.dustCol || 'rgba(185,142,85,.7)'; for (let k = 0; k < 4; k++) { c.beginPath(); c.arc((k % 2 ? 3.6 : -3.6) + (Math.random() - .5) * 2, -Math.random() * 1.5, .6 + Math.random() * .7, 0, TAU); c.fill(); } }
   c.fillStyle = '#1a1a1a';
@@ -460,9 +512,11 @@ function drawKart(c, x, y, s, ch, o) {
     c.fillStyle = o.charge > 1.4 ? '#ff8c1a' : o.charge > 0.7 ? '#4cc9ff' : '#ffffff';
     for (let k = 0; k < 8; k++) c.fillRect((k % 2 ? 3.6 : -3.6) + (Math.random() - .5) * 2.4, -Math.random() * 2, .55, .55);
   }
-  if (o.spin) { c.fillStyle = '#ffd23f'; for (let k = 0; k < 3; k++) { const a = o.spin * .5 + k * TAU / 3; c.fillRect(Math.cos(a) * 2.6 - .4, -9 + Math.sin(a) * .6, .8, .8); } }
+  if (o.spin) spinStars(c, o);
   c.restore();
 }
+// estrelinhas girando em cima da cabeça (tonto)
+function spinStars(c, o) { c.fillStyle = '#ffd23f'; for (let k = 0; k < 3; k++) { const a = o.spin * .5 + k * TAU / 3; c.fillRect(Math.cos(a) * 2.6 - .4, -9 + Math.sin(a) * .6, .8, .8); } }
 function drawScenery(c, o, x, y, s) {
   c.save(); c.translate(x, y); c.scale(s, s);
   if (o.type === 'tree') {
@@ -557,6 +611,10 @@ const sfx = {
   drop: () => tone(260, .2, 'sine', .3, 0, 120),
   hit: () => { tone(200, .4, 'sawtooth', .28, 0, 50); tone(900, .3, 'square', .1, .05, 300); },
   splat: () => tone(160, .2, 'square', .18, 0, 70),
+  jump: () => tone(220, .3, 'square', .16, 0, 760),
+  hop: () => tone(330, .14, 'square', .13, 0, 620),
+  land: () => { tone(95, .2, 'square', .3, 0, 45); tone(60, .25, 'triangle', .35, 0, 40); },
+  thump: () => tone(150, .1, 'triangle', .32, 0, 70),
   horn: id => {
     if (!AC) return;
     if (id === 'boi') { // "muuu": serra grave descendo, com vibrato
@@ -570,6 +628,8 @@ const sfx = {
     else [0, .11, .22].forEach(w => tone(950, .07, 'square', .15, w, 600));
   },
 };
+// celular: vibra de leve nas batidas, lombadas e pousos (Android; o iPhone ignora)
+const buzz = ms => { if (isTouch && navigator.vibrate) try { navigator.vibrate(ms); } catch (e) {} };
 const mtof = n => 440 * Math.pow(2, (n - 69) / 12);
 const BASS = [45, 45, 57, 45, 48, 48, 60, 48, 43, 43, 55, 43, 50, 50, 52, 55];
 const LEAD = [69, 0, 72, 0, 76, 0, 74, 72, 69, 0, 72, 0, 79, 77, 76, 74, 72, 0, 71, 0, 67, 0, 69, 71, 72, 0, 74, 0, 76, 0, 0, 0];
@@ -610,18 +670,18 @@ const nearAny = (k, r) => views.some(v => Math.hypot(k.x - v.k.x, k.y - v.k.y) <
 function newRace(chars, demo) {
   const order = [...chars, ...[0, 1, 2, 3].filter(i => !chars.includes(i))];
   const slots = [[N - 9, -15], [N - 9, 15], [N - 4, -15], [N - 4, 15]]; // jogador sai no fundo do grid
-  const skill = [1, .9, .93, .96];
+  const skill = [1, .97, .99, 1.02]; // rivais: um pouco mais lento, um igual e um mais rápido que o jogador
   karts = order.map((ci, n) => {
     const [i, off] = slots[n], ch = CHARS[ci];
     return { ch, x: P[i][0] + NRM[i][0] * off, y: P[i][1] + NRM[i][1] * off, angle: ANG[i], vAng: ANG[i], speed: 0, idx: i, lap: 0, maxLap: 0, prog: i,
-      boost: 0, drifting: false, driftDir: 0, charge: 0, slip: 0, hop: 0, surf: 1, isPlayer: n < chars.length && !demo, auto: n >= chars.length || demo,
+      boost: 0, drifting: false, driftDir: 0, charge: 0, slip: 0, z: 0, vz: 0, squashT: 0, bumpCool: 0, jumpCool: 0, autoDrive: 0, jumpBoost: false, surf: 1, isPlayer: n < chars.length && !demo, auto: n >= chars.length || demo,
       maxMul: ch.spd * (n < chars.length ? 1 : skill[n]), rubber: 1, aiOff: off, aiOffT: 1, aiOffTarget: off, finished: false, finishT: 0,
       item: null, roll: 0, pick: null, aiUseT: 0, spinT: 0, spinVis: 0, offT: 0, lapStart: 0, lapTimes: [],
       dist: 0, farT: 0, rescueT: 0, stallT: 0, gasAt: -1, bubble: null, hornT: 0, was: {}, human: n < chars.length && !demo, remote: false, netId: null, name: '', net: null, canDrift: n >= 2 || Math.random() < .5 };
   });
   player = karts[0]; humans = karts.filter(k => k.isPlayer);
   views = (humans.length ? humans : [player]).map(mkView);
-  raceT = 0; shots = []; puddles = [];
+  raceT = 0; shots = []; puddles = []; parts = [];
   for (const b of TR.boxes) b.re = 0;
 }
 
@@ -629,13 +689,13 @@ const keys = {}, touch = {};
 // teclas de cada jogador: sozinho, setas e WASD valem; em dupla, J1 fica com o lado esquerdo do teclado e J2 com o direito
 const BINDS = {
   1: [{ left: ['ArrowLeft', 'KeyA'], right: ['ArrowRight', 'KeyD'], gas: ['ArrowUp', 'KeyW'], brake: ['ArrowDown', 'KeyS'],
-        drift: ['Space', 'ShiftLeft', 'ShiftRight'], item: ['KeyX', 'KeyE', 'ControlLeft'], horn: ['KeyH'], rescue: ['KeyT'] }],
-  2: [{ left: ['KeyA'], right: ['KeyD'], gas: ['KeyW'], brake: ['KeyS'], drift: ['Space', 'ShiftLeft'], item: ['KeyE', 'KeyX', 'ControlLeft'], horn: ['KeyQ'], rescue: ['KeyT'] },
-      { left: ['ArrowLeft'], right: ['ArrowRight'], gas: ['ArrowUp'], brake: ['ArrowDown'], drift: ['ShiftRight', 'Numpad0'], item: ['Enter', 'NumpadEnter', 'ControlRight'], horn: ['Backspace'], rescue: ['Delete', 'End'] }],
+        drift: ['Space', 'ShiftLeft', 'ShiftRight'], item: ['KeyX', 'KeyE', 'ControlLeft'], horn: ['KeyH'], rescue: ['KeyT'], jump: ['KeyC', 'KeyJ'] }],
+  2: [{ left: ['KeyA'], right: ['KeyD'], gas: ['KeyW'], brake: ['KeyS'], drift: ['Space', 'ShiftLeft'], item: ['KeyE', 'KeyX', 'ControlLeft'], horn: ['KeyQ'], rescue: ['KeyT'], jump: ['KeyF'] },
+      { left: ['ArrowLeft'], right: ['ArrowRight'], gas: ['ArrowUp'], brake: ['ArrowDown'], drift: ['ShiftRight', 'Numpad0'], item: ['Enter', 'NumpadEnter', 'ControlRight'], horn: ['Backspace'], rescue: ['Delete', 'End'], jump: ['Slash', 'Numpad1', 'IntlRo'] }],
 };
 const binds = pi => BINDS[Math.max(1, humans.length)][pi];
 // controles (joystick USB/Bluetooth no padrão Xbox): o 1º conectado é do J1, o 2º do J2
-const PADMAP = { gas: [0, 7], brake: [2, 6], drift: [4, 5], item: [1], horn: [3], left: [14], right: [15], pause: [9] };
+const PADMAP = { gas: [0, 7], brake: [2, 6], drift: [4, 5], item: [1], jump: [3], horn: [8], left: [14], right: [15], pause: [9] };
 let pads = [];
 const padState = [{}, {}];
 function padHeld(pi, act) {
@@ -645,7 +705,7 @@ function padHeld(pi, act) {
 const padAxis = pi => { const a = pads[pi] ? pads[pi].axes[0] || 0 : 0; return Math.abs(a) > .25 ? a : 0; };
 function pollPads() {
   pads = navigator.getGamepads ? [...navigator.getGamepads()].filter(Boolean) : [];
-  for (let pi = 0; pi < 2; pi++) for (const act of ['item', 'horn', 'pause']) { // só reage no instante em que o botão é apertado
+  for (let pi = 0; pi < 2; pi++) for (const act of ['item', 'horn', 'jump', 'pause']) { // só reage no instante em que o botão é apertado
     const on = padHeld(pi, act); if (on && !padState[pi][act]) action(pi, act); padState[pi][act] = on;
   }
 }
@@ -654,7 +714,23 @@ function readInput(pi) {
   if (NET.paused) return { throttle: 0, steer: 0, drift: false };
   const h = a => held(pi, a);
   const gas = h('gas') || (autoGas && pi === 0 && humans.length < 2 && state === 'race' && !h('brake'));
-  return { throttle: gas ? 1 : h('brake') ? -1 : 0, steer: clamp((h('right') ? 1 : 0) - (h('left') ? 1 : 0) + padAxis(pi), -1, 1), drift: h('drift') };
+  let steer = clamp((h('right') ? 1 : 0) - (h('left') ? 1 : 0) + padAxis(pi), -1, 1);
+  if (assist && pi === 0 && humans.length < 2 && humans[0]) steer = assistSteer(humans[0], steer);
+  return { throttle: gas ? 1 : h('brake') ? -1 : 0, steer, drift: h('drift') };
+}
+// ajuda na direção (celular): sem tocar em ◀ ▶ o kart segue a curva sozinho; tocando, o jogador manda e a ajuda só suaviza.
+// A ajuda faz a curva "com cuidado" (autoDrive deixa o kart um pouco mais lento): quem pilota nos botões é mais rápido.
+// velocidade máxima enquanto a ajuda faz a curva: calibrado em corridas simuladas para que quem não toca em nada
+// termine em média em 3º (com 0,86 ganhava todas)
+let ASSIST_MUL = .8;
+let RUBBER_AHEAD = 40; // quantos pontos de pista (×10 unidades) a IA pode abrir na frente antes de "esperar" o jogador
+function assistSteer(k, s) {
+  if (k.drifting || k.spinT > 0 || k.speed < 30) return s;
+  const i = k.idx, lat = (k.x - P[i][0]) * NRM[i][0] + (k.y - P[i][1]) * NRM[i][1]; // quanto está fora do meio da pista
+  const ti = (i + 10) % N, off = clamp(lat, -RW * .3, RW * .3), tx = P[ti][0] + NRM[ti][0] * off, ty = P[ti][1] + NRM[ti][1] * off;
+  const auto = clamp(angDiff(Math.atan2(ty - k.y, tx - k.x), k.vAng) * 2, -1, 1);
+  if (s === 0) { if (Math.abs(auto) > .15) k.autoDrive = .35; return auto * .85; }
+  return clamp(s * .8 + auto * .3, -1, 1);
 }
 function aiCtrl(k, dt) {
   k.aiOffT -= dt;
@@ -664,7 +740,8 @@ function aiCtrl(k, dt) {
   // no gelo o kart "escorrega": a IA mira pela direção real do movimento
   const diff = angDiff(Math.atan2(ty - k.y, tx - k.x), k.vAng) + angDiff(k.vAng, k.angle) * (TR.def.grip < 6 ? .0 : 1);
   const curv = Math.abs(angDiff(ANG[(k.idx + 22) % N], ANG[k.idx]));
-  const tS = MAX * k.maxMul * k.rubber * (1 - Math.min(.5, curv * TR.def.aiCurv));
+  let tS = MAX * k.maxMul * k.rubber * (1 - Math.min(.5, curv * TR.def.aiCurv));
+  for (const b of TR.bumps) if ((b.i - k.idx + N) % N < 14) { tS = Math.min(tS, 185); break; } // a IA tira o pé antes da lombada
   const steer = clamp(diff * 2.4, -1, 1);
   // drift da IA: entra em curvas fechadas (fora do gelo) e solta quando a curva termina, ganhando turbo
   let drift = false;
@@ -688,16 +765,33 @@ function honk(k) {
 function rescue(k) {
   const i = (k.idx - 3 + N) % N;
   k.x = P[i][0]; k.y = P[i][1]; k.angle = k.vAng = ANG[i]; k.idx = i; k.prog = k.lap * N + i;
-  k.speed = 0; k.spinT = 0; k.spinVis = 0; k.drifting = false; k.boost = 0; k.farT = 0; k.rescueT = 1.3;
+  k.speed = 0; k.spinT = 0; k.spinVis = 0; k.drifting = false; k.boost = 0; k.farT = 0; k.rescueT = 1.3; k.z = 0; k.vz = 0; k.jumpBoost = false;
   if (k.isPlayer && !k.auto) { flash('RESGATE!', k); sfx.get(); } else say(k, 'OPA!');
 }
 function updateKart(k, c, dt) {
   if (k.spinT > 0) { k.spinT -= dt; k.spinVis += dt * 16; c = { throttle: 0, steer: 0, drift: false }; if (k.spinT <= 0) k.spinVis = 0; }
   if (k.stallT > 0) { k.stallT -= dt; c = { ...c, throttle: 0 }; } // motor afogado na largada
-  const surf = k.surf = surfaceAt(k.x, k.y);
+  const me = k.isPlayer && !k.auto, high = k.z > 3; // "high": no ar de verdade (o pulinho do drift não conta)
+  // no ar o chão não importa: nem grama, nem turbo, nem lombada
+  const surf = k.surf = (k.z > 0 || k.vz > 0) ? 1 : surfaceAt(k.x, k.y);
   if (surf === 0) k.offT += dt;
   if (surf === 2 && k.boost < .5) { k.boost = .9; if (k.isPlayer) sfx.boost(); }
-  let max = MAX * k.maxMul * (surf === 0 ? TR.def.offMul : 1);
+  if (surf === 4 && k.speed > 80) { // rampa: decola (quanto mais rápido, mais alto e mais longe)
+    k.vz = Math.min(125, k.speed * .45); k.drifting = false; k.jumpBoost = true;
+    if (me) { sfx.jump(); flash('SALTO!', k); }
+  }
+  if (surf === 3 && k.bumpCool <= 0) { // lombada: quica; passar voando custa velocidade
+    const fast = k.speed > 190 && k.boost <= 0;
+    k.bumpCool = .35; k.vz = 25 + Math.abs(k.speed) * .12; if (fast) k.speed *= .85;
+    puff(k, fast ? 7 : 4);
+    if (me) { sfx.thump(); buzz(fast ? 45 : 20); const v = viewOf(k); if (v) v.shakeT = fast ? .18 : .08; }
+  }
+  if (k.bumpCool > 0) k.bumpCool -= dt;
+  if (k.jumpCool > 0) k.jumpCool -= dt;
+  if (k.squashT > 0) k.squashT -= dt;
+  if (k.autoDrive > 0) k.autoDrive -= dt;
+  const easy = isTouch && me; // celular: grama freia menos e o drift carrega mais rápido
+  let max = MAX * k.maxMul * (surf === 0 ? (easy ? Math.max(TR.def.offMul, .65) : TR.def.offMul) : 1) * (k.autoDrive > 0 ? ASSIST_MUL : 1);
   if (k.boost > 0) { max = MAX * k.maxMul * 1.35; k.boost -= dt; }
   if (k.boost > 0 && c.throttle >= 0) k.speed += 420 * dt;
   else if (c.throttle > 0) { if (k.speed < max) k.speed += ACC * k.ch.acc * dt * (1 - clamp(k.speed / max, 0, 1) * .6); }
@@ -707,8 +801,8 @@ function updateKart(k, c, dt) {
   if (k.speed < -60) k.speed = -60;
 
   // drift: segure na curva, carregue a faísca, solte para ganhar turbo
-  if (c.drift && !k.drifting && Math.abs(c.steer) > .3 && k.speed > MAX * .4 && surf !== 0) {
-    k.drifting = true; k.driftDir = Math.sign(c.steer); k.charge = 0; k.hop = .18; STAT.drift = (STAT.drift || 0) + 1;
+  if (c.drift && !k.drifting && Math.abs(c.steer) > .3 && k.speed > MAX * .4 && surf !== 0 && k.z === 0) {
+    k.drifting = true; k.driftDir = Math.sign(c.steer); k.charge = 0; k.vz = 42; STAT.drift = (STAT.drift || 0) + 1; // pulinho antes de derrapar
   }
   let turn;
   if (k.drifting) {
@@ -717,19 +811,72 @@ function updateKart(k, c, dt) {
       if (b) { k.boost = Math.max(k.boost, b); if (k.isPlayer) sfx.boost(); }
       k.drifting = false; turn = c.steer * TURN * k.ch.turn;
     } else {
-      k.charge += dt * (1 + (c.steer * k.driftDir > 0 ? .6 : 0));
+      k.charge += dt * (1 + (c.steer * k.driftDir > 0 ? .6 : 0)) * (easy ? 1.5 : 1);
       turn = (k.driftDir * .75 + c.steer * .55) * TURN * k.ch.turn;
     }
   } else turn = c.steer * TURN * k.ch.turn;
+  if (high) turn *= .35; // no ar dá para ajeitar o kart só um pouquinho
   const sf = Math.min(1, Math.abs(k.speed) / 60) * (k.speed < 0 ? -1 : 1);
   k.angle += turn * sf * dt;
   k.slip += ((k.drifting ? k.driftDir * .32 : 0) - k.slip) * Math.min(1, dt * 7);
-  // aderência: a direção do movimento persegue a direção do kart; no gelo persegue devagar (desliza)
+  // aderência: a direção do movimento persegue a direção do kart; no gelo persegue devagar (desliza); no ar mantém o embalo
   const grip = surf === 0 ? Math.max(TR.def.grip, 8) : TR.def.grip;
-  k.vAng += angDiff(k.angle - k.slip, k.vAng) * Math.min(1, dt * grip);
+  if (!high) k.vAng += angDiff(k.angle - k.slip, k.vAng) * Math.min(1, dt * grip);
   k.x = clamp(k.x + Math.cos(k.vAng) * k.speed * dt, 20, TS - 20);
   k.y = clamp(k.y + Math.sin(k.vAng) * k.speed * dt, 20, TS - 20);
-  if (k.hop > 0) k.hop -= dt;
+  // altura: sobe com vz, a gravidade puxa de volta; pouso forte amassa o kart e levanta poeira
+  if (k.z > 0 || k.vz > 0) {
+    k.vz -= GRAV * dt; k.z += k.vz * dt;
+    if (k.z <= 0) { const fall = -k.vz; k.z = 0; k.vz = 0; if (fall > 90) land(k, fall); }
+  }
+}
+// PULO (botão): só do chão e fora do drift. Lá em cima (z > 5) o tomate e a poça de leite passam por baixo,
+// e a lombada não pega. Custa um pouquinho de velocidade e tem um descanso curto, para não virar "pula-pula" o tempo todo.
+const JUMP_VZ = 100, JUMP_COOL = .7;
+function jump(k) {
+  if (k.z > 0 || k.vz > 0 || k.drifting || k.spinT > 0 || k.jumpCool > 0) return;
+  k.vz = JUMP_VZ; k.jumpCool = JUMP_COOL; k.speed *= .97; STAT.jump = (STAT.jump || 0) + 1;
+  if (k.isPlayer && !k.auto) { sfx.hop(); buzz(15); }
+  puff(k, 4);
+}
+function land(k, fall) {
+  k.squashT = .25; puff(k, 12);
+  if (k.jumpBoost) { k.jumpBoost = false; k.boost = Math.max(k.boost, .4); } // pouso de salto: empurrãozinho
+  if (k.isPlayer && !k.auto) { sfx.land(); if (k.boost > 0) sfx.boost(); buzz(40); const v = viewOf(k); if (v) v.shakeT = .22; }
+  else if (near(k)) sfx.thump();
+}
+
+// ================= partículas (faíscas do drift, poeira, respingos) =================
+// cada partícula vive no mundo (x, y, altura z) e é desenhada junto com os sprites, então some atrás das árvores etc.
+let parts = [];
+function spawn(x, y, z, vx, vy, vz, life, col, size, g = 300) { if (parts.length < 260) parts.push({ x, y, z, vx, vy, vz, life, max: life, col, size, g }); }
+const dustCol = () => TR.def.snow ? '#ffffff' : Math.random() < .5 ? '#c9a36b' : '#5fbf4f';
+function puff(k, n, col) {
+  if (!nearAny(k, 260)) return;
+  for (let j = 0; j < n; j++) spawn(k.x + (Math.random() - .5) * 8, k.y + (Math.random() - .5) * 8, 0, (Math.random() - .5) * 50, (Math.random() - .5) * 50,
+    15 + Math.random() * 35, .45 + Math.random() * .3, col ? col() : dustCol(), 1.4 + Math.random() * 1.4, 90);
+}
+function emitFx(k) {
+  if (!nearAny(k, 260)) return;
+  const fx = Math.cos(k.angle), fy = Math.sin(k.angle), nx = -fy, ny = fx;
+  if (k.drifting && k.charge > .7 && k.z < 2) { // faíscas: azuis = turbo pequeno, laranja = turbo grande
+    const big = k.charge > 1.4;
+    for (const side of [-1, 1]) if (Math.random() < .8) spawn(k.x - fx * 3.5 + nx * side * 3.6, k.y - fy * 3.5 + ny * side * 3.6, .5,
+      -fx * 30 + (Math.random() - .5) * 60, -fy * 30 + (Math.random() - .5) * 60, 25 + Math.random() * 50, .28,
+      big ? (Math.random() < .5 ? '#ff8c1a' : '#ffd23f') : (Math.random() < .5 ? '#4cc9ff' : '#ffffff'), big ? 1.1 : .8, 330);
+  }
+  if (k.surf === 0 && k.z === 0 && Math.abs(k.speed) > 40 && Math.random() < .7) // poeira/grama saindo das rodas
+    spawn(k.x - fx * 4 + nx * (Math.random() - .5) * 7, k.y - fy * 4 + ny * (Math.random() - .5) * 7, .5, -fx * 25 + (Math.random() - .5) * 30, -fy * 25 + (Math.random() - .5) * 30,
+      12 + Math.random() * 25, .45, dustCol(), 1.3 + Math.random(), 90);
+  if (k.boost > 0 && k.z < 2 && Math.random() < .4) // fumacinha do turbo
+    spawn(k.x - fx * 6, k.y - fy * 6, 2, -fx * 20, -fy * 20, 10, .35, Math.random() < .5 ? '#d8d8d8' : '#9a9a9a', 1.6, 0);
+}
+function updateParts(dt) {
+  for (const q of parts) {
+    q.life -= dt; q.x += q.vx * dt; q.y += q.vy * dt; q.vz -= q.g * dt; q.z += q.vz * dt;
+    if (q.z < 0) { q.z = 0; q.vz *= -.3; q.vx *= .7; q.vy *= .7; }
+  }
+  parts = parts.filter(q => q.life > 0);
 }
 function updateProg(k) {
   let best = k.idx, bd = 1e18;
@@ -777,8 +924,9 @@ function useItem(k) {
 const near = k => nearAny(k, 250);
 function hitKart(k, why) {
   if (k.spinT > 0 || k.rescueT > 0) return;
-  k.spinT = 1; k.drifting = false; k.charge = 0; k.speed *= .35; STAT.hit++; say(k, HIT_TXT[k.ch.id]);
-  if (k.isPlayer && !k.auto) { sfx.hit(); viewOf(k).shakeT = .3; flash(why === 'leite' ? 'ESCORREGOU!' : 'TOMATADA!', k); }
+  k.spinT = 1; k.drifting = false; k.charge = 0; k.speed *= .35; k.vz = Math.max(k.vz, 70); STAT.hit++; say(k, HIT_TXT[k.ch.id]);
+  puff(k, 14, why === 'leite' ? () => (Math.random() < .7 ? '#ffffff' : '#dfe9f2') : () => (Math.random() < .7 ? '#e63946' : '#ff9a9a')); // respingos
+  if (k.isPlayer && !k.auto) { sfx.hit(); viewOf(k).shakeT = .3; buzz(90); flash(why === 'leite' ? 'ESCORREGOU!' : 'TOMATADA!', k); }
   else if (near(k)) sfx.splat();
 }
 // alvo à frente, dentro de um "cone" de visão
@@ -797,7 +945,7 @@ function aiItems(k, dt) {
 function updateItems(dt) {
   for (const b of TR.boxes) if (b.re > 0) b.re -= dt;
   for (const k of karts) {
-    for (const b of TR.boxes) if (b.re <= 0 && Math.abs(b.x - k.x) < 7 && Math.abs(b.y - k.y) < 7) {
+    for (const b of TR.boxes) if (b.re <= 0 && k.z < 8 && Math.abs(b.x - k.x) < 7 && Math.abs(b.y - k.y) < 7) {
       b.re = 2.5;
       if (!k.remote && !k.item && k.roll <= 0) { k.roll = 1.1; k.pick = pickItem(k); STAT.pick++; }
     }
@@ -814,12 +962,12 @@ function updateItems(dt) {
     if (tg && tg !== s.owner) s.ang += clamp(angDiff(Math.atan2(tg.y - s.y, tg.x - s.x), s.ang), -1.6 * dt, 1.6 * dt);
     s.x += Math.cos(s.ang) * s.speed * dt; s.y += Math.sin(s.ang) * s.speed * dt;
     let gone = s.life <= 0 || s.x < 0 || s.y < 0 || s.x > TS || s.y > TS;
-    if (!gone) for (const k of karts) if (!k.remote && (k !== s.owner || s.t > .5) && Math.hypot(k.x - s.x, k.y - s.y) < 6) { hitKart(k, 'tomate'); netHit(s.id, k); gone = true; break; }
+    if (!gone) for (const k of karts) if (!k.remote && k.z < 5 && (k !== s.owner || s.t > .5) && Math.hypot(k.x - s.x, k.y - s.y) < 6) { hitKart(k, 'tomate'); netHit(s.id, k); gone = true; break; }
     if (gone) shots.splice(i, 1);
   }
   for (let i = puddles.length - 1; i >= 0; i--) {
     const p = puddles[i]; p.t += dt;
-    for (const k of karts) if (!k.remote && (k !== p.owner || p.t > 1) && Math.hypot(k.x - p.x, k.y - p.y) < 6) { hitKart(k, 'leite'); netHit(p.id, k); puddles.splice(i, 1); break; }
+    for (const k of karts) if (!k.remote && k.z < 5 && (k !== p.owner || p.t > 1) && Math.hypot(k.x - p.x, k.y - p.y) < 6) { hitKart(k, 'leite'); netHit(p.id, k); puddles.splice(i, 1); break; }
   }
 }
 
@@ -835,12 +983,13 @@ function simulate(dt) {
       updateKart(k, c, dt); updateProg(k);
       if (k.lap > k.maxLap) { k.maxLap = k.lap; onLap(k); }
       // "elástico": a IA segura se passar muito do 1º humano e acelera se ficar muito atrás do último
-      if (!isRef) k.rubber = k.prog - refMax > 40 ? .93 : k.prog - refMin < -40 ? 1.05 : 1;
+      if (!isRef) k.rubber = k.prog - refMax > RUBBER_AHEAD ? .93 : k.prog - refMin < -40 ? 1.05 : 1;
       // resgate automático: muito tempo longe da pista (a IA espera menos que o jogador)
       k.farT = k.dist > RW * .95 ? k.farT + dt : 0;
-      if (k.farT > (k.auto ? 2.5 : 5)) rescue(k);
+      if (k.farT > (k.auto ? 2.5 : isTouch ? 3 : 5)) rescue(k);
       if (k.rescueT > 0) k.rescueT -= dt;
     }
+    emitFx(k);
     if (k.hornT > 0) k.hornT -= dt;
     if (k.bubble && (k.bubble.t -= dt) <= 0) k.bubble = null;
     if (!isRef && state !== 'menu') for (const h of refs) {
@@ -851,16 +1000,16 @@ function simulate(dt) {
       if (dp < 50 && Math.random() < dt * .12) honk(k);
     }
   }
-  updateItems(dt);
+  updateItems(dt); updateParts(dt);
   for (let i = 0; i < karts.length; i++) for (let j = i + 1; j < karts.length; j++) {
     const a = karts[i], b = karts[j], dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy);
-    if (a.rescueT > 0 || b.rescueT > 0 || (a.remote && b.remote)) continue;
+    if (a.rescueT > 0 || b.rescueT > 0 || (a.remote && b.remote) || Math.abs(a.z - b.z) > 5) continue; // um passa por cima do outro
     if (d < 7 && d > .01) {
       // batida: cada aparelho só empurra os karts que ele comanda
       const wa = a.remote ? 0 : b.remote ? 1 : .5, wb = 1 - wa, push = 7 - d, nx = dx / d, ny = dy / d;
       a.x -= nx * push * wa; a.y -= ny * push * wa; b.x += nx * push * wb; b.y += ny * push * wb;
       if (!a.remote) a.speed *= .93; if (!b.remote) b.speed *= .93;
-      for (const v of views) if ((v.k === a || v.k === b) && v.k.isPlayer && v.shakeT <= 0) { sfx.bump(); v.shakeT = .2; }
+      for (const v of views) if ((v.k === a || v.k === b) && v.k.isPlayer && v.shakeT <= 0) { sfx.bump(); buzz(25); v.shakeT = .2; }
     }
   }
   for (const v of views) { // contramão
@@ -873,13 +1022,13 @@ function simulate(dt) {
 }
 
 // ================= render =================
-let fx = 1, fy = 0, rx = 0, ry = 1;
+let fx = 1, fy = 0, rx = 0, ry = 1, camH = CAMH; // camH: altura da câmera (sobe junto quando o kart salta)
 function mode7(oy) {
   // Para cada linha da tela abaixo do horizonte: calcula a que distância o chão está
   // e "caminha" pela textura do mapa. É o truque de perspectiva estilo Mode 7.
   const tex = TR.tex, OUTC = TR.OUTC; let o = 0;
   for (let r = 0; r < GH; r++) {
-    const z = CAMH * FOCAL / (r + 1), k = z / FOCAL;
+    const z = camH * FOCAL / (r + 1), k = z / FOCAL;
     let wx = camX + fx * z - rx * k * W / 2, wy = camY + fy * z - ry * k * W / 2;
     const sx = rx * k, sy = ry * k;
     for (let c = 0; c < W; c++) {
@@ -894,7 +1043,7 @@ function project(x, y) {
   const dx = x - camX, dy = y - camY, depth = dx * fx + dy * fy;
   if (depth < 3) return null;
   const s = FOCAL / depth;
-  return { sx: W / 2 + (dx * rx + dy * ry) * s, sy: HOR + CAMH * s, s, depth };
+  return { sx: W / 2 + (dx * rx + dy * ry) * s, sy: HOR + camH * s, s, depth };
 }
 function drawBag(c, x, y, s, t) {
   c.save(); c.translate(x, y); c.scale(s, s);
@@ -907,16 +1056,25 @@ function drawBag(c, x, y, s, t) {
   c.restore();
 }
 function drawSprites(time, v) {
-  const list = [], add = (x, y, fn, maxD = 1400) => { const p = project(x, y); if (p && p.depth < maxD && p.sx > -40 * p.s && p.sx < W + 40 * p.s) list.push({ depth: p.depth, draw: () => fn(p) }); };
+  const list = [], add = (x, y, fn, maxD = 1400, half = 40) => { const p = project(x, y); if (p && p.depth < maxD && p.sx > -half * p.s && p.sx < W + half * p.s) list.push({ depth: p.depth, maxD, draw: () => fn(p) }); };
   for (const o of TR.scenery) {
     if (o.type === 'arch') {
       const off = RW / 2 + 8, a = project(P[0][0] - NRM[0][0] * off, P[0][1] - NRM[0][1] * off), b = project(P[0][0] + NRM[0][0] * off, P[0][1] + NRM[0][1] * off);
       if (a && b && a.depth < 1400) list.push({ depth: (a.depth + b.depth) / 2, draw: () => drawArch(a, b) });
       continue;
     }
-    add(o.x, o.y, p => drawScenery(ctx, o, p.sx, p.sy, p.s));
+    add(o.x, o.y, p => drawScenery(ctx, o, p.sx, p.sy, p.s), o.far || 1400, o.half || 40);
   }
   for (const b of TR.boxes) if (b.re <= 0) add(b.x, b.y, p => drawBag(ctx, p.sx, p.sy, p.s, time + b.ph), 900);
+  // rampa e lombada: um pouco "mais fundas" que o centro, para o kart em cima delas ser desenhado por cima
+  for (const r of TR.ramps) { const p = project(r.x, r.y); if (p && p.depth < 1100) list.push({ depth: p.depth + 6, draw: () => drawRamp(r) }); }
+  for (const b of TR.bumps) { const p = project(b.x, b.y); if (p && p.depth < 650) list.push({ depth: p.depth + 3, draw: () => drawBump(b) }); }
+  for (const q of parts) add(q.x, q.y, p => {
+    if (p.depth < 18) return; // colada na câmera viraria um quadradão
+    const sz = clamp(q.size * p.s, 1, 6), a = ctx.globalAlpha;
+    ctx.globalAlpha = a * clamp(q.life / q.max * 2, 0, 1); ctx.fillStyle = q.col;
+    ctx.fillRect(p.sx - sz / 2, p.sy - q.z * p.s - sz / 2, sz, sz); ctx.globalAlpha = a;
+  }, 520);
   for (const pd of puddles) add(pd.x, pd.y, p => {
     ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.ellipse(p.sx, p.sy - .3 * p.s, 5 * p.s, 1.3 * p.s, 0, 0, TAU); ctx.fill();
     ctx.fillStyle = '#dfe9f2'; ctx.beginPath(); ctx.ellipse(p.sx + 1.5 * p.s, p.sy - .2 * p.s, 1.8 * p.s, .5 * p.s, 0, 0, TAU); ctx.fill();
@@ -927,23 +1085,55 @@ function drawSprites(time, v) {
     ctx.fillStyle = '#2a9d4b'; ctx.fillRect(p.sx - .6 * p.s, p.sy - 4.3 * p.s, 1.2 * p.s, .6 * p.s);
   }, 900);
   for (const k of karts) {
-    // de que lado vemos o kart: depende da direção dele em relação à câmera
-    const rel = angDiff(k.angle, camA), ar = Math.abs(rel);
+    // de que lado vemos o kart: depende da direção dele em relação à câmera (no rodopio, a vista gira: costas, lado, frente, lado)
+    const spin = k.spinT > 0 ? k.spinVis : 0;
+    const rel = angDiff(k.angle + spin, camA), ar = Math.abs(rel);
     const view = ar < .6 ? 0 : ar > 2.5 ? 2 : (rel > 0 ? 1 : -1);
-    const lean = clamp(rel * 1.6, -1, 1);
+    const lean = spin ? 0 : clamp(rel * 1.6, -1, 1);
     add(k.x, k.y, p => {
       if (k.rescueT > 0 && (time * 12 | 0) % 2) return; // pisca enquanto volta do resgate
       drawKart(ctx, p.sx, p.sy, p.s, k.ch, {
-        view, lean, hop: k.hop > 0 ? Math.sin(k.hop / .18 * Math.PI) * 1.4 : 0, drifting: k.drifting, charge: k.charge,
-        boost: k.boost > 0, dust: k.surf === 0 && Math.abs(k.speed) > 40, dustCol: TR.def.snow ? 'rgba(255,255,255,.85)' : null,
-        spin: k.spinT > 0 ? k.spinVis : 0, t: time });
-      if (k.bubble && p.depth < 520) drawBubble(p.sx, p.sy - 11.5 * p.s, k.bubble.txt, clamp(1.5 * p.s, 4, 7));
-      else if (k.human && k !== v.k) drawTag(p.sx, p.sy - 10 * p.s, k.name ? k.name.slice(0, 10).toUpperCase() : 'J' + (humans.indexOf(k) + 1), k.name ? '#ffffff' : humans.indexOf(k) ? '#4cc9ff' : '#ffd23f');
+        view, lean, hop: k.z, squash: k.squashT > 0 ? k.squashT / .25 : 0, drifting: k.drifting, charge: k.charge,
+        boost: k.boost > 0, spin, t: time });
+      const top = p.sy - k.z * p.s;
+      if (k.bubble && p.depth < 520) drawBubble(p.sx, top - 11.5 * p.s, k.bubble.txt, clamp(1.5 * p.s, 4, 7));
+      else if (k.human && k !== v.k) drawTag(p.sx, top - 10 * p.s, k.name ? k.name.slice(0, 10).toUpperCase() : 'J' + (humans.indexOf(k) + 1), k.name ? '#ffffff' : humans.indexOf(k) ? '#4cc9ff' : '#ffd23f');
     });
   }
   list.sort((a, b) => b.depth - a.depth);
-  for (const it of list) { ctx.globalAlpha = clamp((1400 - it.depth) / 300, 0, 1); it.draw(); }
+  for (const it of list) { ctx.globalAlpha = clamp(((it.maxD || 1400) - it.depth) / 300, 0, 1); it.draw(); }
   ctx.globalAlpha = 1;
+}
+// ponto do mundo a uma altura h (o chão é h = 0): mesmo cálculo do project, subindo h unidades na tela
+function projH(x, y, h) { const p = project(x, y); if (p) p.sy -= h * p.s; return p; }
+function poly(pts, col) { ctx.fillStyle = col; ctx.beginPath(); pts.forEach((q, j) => ctx[j ? 'lineTo' : 'moveTo'](q.sx, q.sy)); ctx.closePath(); ctx.fill(); }
+// rampa: uma cunha em 3D (frente no chão, fundo alto), com faixas vermelhas
+function drawRamp(r) {
+  const D = DIR[r.i], Nn = NRM[r.i], L = RAMP_L / 2, Wd = RAMP_W / 2;
+  const pt = (a, b, h) => projH(r.x + D[0] * a + Nn[0] * b, r.y + D[1] * a + Nn[1] * b, h);
+  const FL = pt(-L, -Wd, 0), FR = pt(-L, Wd, 0), BL = pt(L, -Wd, RAMP_H), BR = pt(L, Wd, RAMP_H), GL = pt(L, -Wd, 0), GR = pt(L, Wd, 0);
+  if (!FL || !FR || !BL || !BR || !GL || !GR) return;
+  const back = () => poly([GL, GR, BR, BL], '#7a1010'), sides = () => { poly([FL, GL, BL], '#8a5a2b'); poly([FR, GR, BR], '#8a5a2b'); };
+  const lerp = (a, b, t) => ({ sx: a.sx + (b.sx - a.sx) * t, sy: a.sy + (b.sy - a.sy) * t });
+  const top = () => {
+    poly([FL, FR, BR, BL], '#ffd23f');
+    ctx.strokeStyle = '#d62828'; ctx.lineWidth = Math.max(1, FL.s * 2.4);
+    for (const t of [.2, .5, .8]) { const a = lerp(FL, BL, t), b = lerp(FR, BR, t), m = lerp(a, b, .5); ctx.beginPath(); ctx.moveTo(a.sx, a.sy); ctx.lineTo(m.sx, m.sy - FL.s * 2); ctx.lineTo(b.sx, b.sy); ctx.stroke(); }
+  };
+  // quem vem na contramão vê a parede de trás por cima
+  if ((camX - r.x) * D[0] + (camY - r.y) * D[1] > 0) { top(); sides(); back(); } else { back(); sides(); top(); }
+}
+// lombada: elevação baixa listrada de amarelo e preto, de um lado ao outro da pista
+function drawBump(b) {
+  const D = DIR[b.i], Nn = NRM[b.i], half = RW / 2 + 4, segs = 10, Lb = 4;
+  const pt = (a, w, h) => projH(b.x + D[0] * a + Nn[0] * w, b.y + D[1] * a + Nn[1] * w, h);
+  for (let j = 0; j < segs; j++) {
+    const w0 = -half + j * 2 * half / segs, w1 = w0 + 2 * half / segs;
+    const A = pt(-Lb, w0, 0), B = pt(-Lb, w1, 0), C = pt(0, w1, BUMP_H), E = pt(0, w0, BUMP_H), F = pt(Lb, w1, 0), G = pt(Lb, w0, 0);
+    if (!A || !B || !C || !E || !F || !G) return;
+    poly([E, C, F, G], j % 2 ? '#000000' : '#c99a00');
+    poly([A, B, C, E], j % 2 ? '#1b1b1b' : '#ffd23f');
+  }
 }
 function drawBubble(x, y, txt, fs) {
   ctx.font = `${fs}px 'Press Start 2P', monospace`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -975,6 +1165,7 @@ function renderView(v, oy, time, dt) {
   const sh = v.shakeT > 0 ? 1 : 0;
   camA = v.camA + sh * (Math.random() - .5) * .03; camX = v.camX + sh * (Math.random() - .5) * 3; camY = v.camY + sh * (Math.random() - .5) * 3;
   fx = Math.cos(camA); fy = Math.sin(camA); rx = -fy; ry = fx;
+  camH = CAMH + v.k.z * .75; // no salto a câmera acompanha: o chão "afasta" e o kart continua na tela
   const G = grads(), k = v.k;
   ctx.save(); ctx.beginPath(); ctx.rect(0, oy, W, VH); ctx.clip(); ctx.translate(0, oy);
   ctx.fillStyle = G.sky; ctx.fillRect(0, 0, W, HOR + 1);
@@ -1091,8 +1282,10 @@ TRACKS.forEach((tk, i) => {
 const isTouch = matchMedia('(pointer:coarse)').matches || 'ontouchstart' in window;
 // celular: aceleração automática (padrão) ou manual, guardada no aparelho
 let autoGas = isTouch && (() => { try { return localStorage.getItem('baratao-kart-acel'); } catch (e) { return null; } })() !== 'manual';
-const touchHelp = () => 'Use os botões na tela. Segure <em>DRIFT</em> numa curva e solte para ganhar <em>TURBO</em>.<br>Passe nas <em>sacolas ?</em> e toque em <em>ITEM</em>.<br>' +
-  (autoGas ? 'O kart <em>acelera sozinho</em>: use o <em>FREIO</em>. Toque <em>ACEL</em> no <em>1</em> para largar com turbo.' : 'Segure <em>ACEL</em> para acelerar. Acelere no <em>1</em> para largar com turbo.');
+let assist = isTouch && (() => { try { return localStorage.getItem('baratao-kart-ajuda'); } catch (e) { return null; } })() !== 'off';
+const touchHelp = () => 'Use os botões na tela. Segure <em>DRIFT</em> numa curva e solte para ganhar <em>TURBO</em>.<br>Passe nas <em>sacolas ?</em> e toque em <em>ITEM</em>. <em>PULO</em> desvia de tomate e leite.<br>' +
+  (autoGas ? 'O kart <em>acelera sozinho</em>: use o <em>FREIO</em>. Toque <em>ACEL</em> no <em>1</em> para largar com turbo.' : 'Segure <em>ACEL</em> para acelerar. Acelere no <em>1</em> para largar com turbo.') +
+  (assist ? '<br>Com a <em>AJUDA</em>, o kart faz as curvas sozinho, mas com cuidado: quem pilota com <em>◀ ▶</em> é mais rápido.' : '');
 if (isTouch) {
   document.body.classList.add('touch'); document.body.classList.toggle('autogas', autoGas);
   $('#help').innerHTML = touchHelp();
@@ -1103,6 +1296,10 @@ if (isTouch) {
     document.body.classList.toggle('autogas', autoGas); $('#help').innerHTML = touchHelp(); initAudio(); sfx.click();
   };
   rot(); $('#modes').appendChild(b);
+  const a = document.createElement('button'); a.className = 'btn alt tab'; a.id = 'bAjuda';
+  const rotA = () => { a.textContent = assist ? '🎯 AJUDA: SIM' : '🎯 AJUDA: NÃO'; };
+  a.onclick = () => { assist = !assist; lsSet('baratao-kart-ajuda', assist ? 'on' : 'off'); rotA(); $('#help').innerHTML = touchHelp(); initAudio(); sfx.click(); };
+  rotA(); $('#modes').appendChild(a);
   document.querySelectorAll('.mode')[1].classList.add('hidden'); // 2 jogadores na mesma tela é só no teclado
 }
 // celular: tela cheia e trava na horizontal (Android); no iPhone fica o aviso de girar
@@ -1118,9 +1315,9 @@ matchMedia('(orientation: portrait)').addEventListener('change', e => {
   if (e.matches && isTouch && (state === 'race' || state === 'countdown') && !NET.paused) togglePause();
 });
 const HELP1 = $('#help').innerHTML;
-const HELP2 = '<em>J1 (em cima)</em>: W A S D · <em>ESPAÇO</em> drift · <em>E</em> item · <em>Q</em> buzina<br>' +
-  '<em>J2 (embaixo)</em>: setas · <em>SHIFT dir.</em> drift · <em>ENTER</em> item · <em>BACKSPACE</em> buzina<br>' +
-  'Joystick: <em>A</em> acelera · <em>X</em> freia · <em>LB/RB</em> drift · <em>B</em> item · <em>Y</em> buzina';
+const HELP2 = '<em>J1 (em cima)</em>: W A S D · <em>ESPAÇO</em> drift · <em>E</em> item · <em>F</em> pula · <em>Q</em> buzina<br>' +
+  '<em>J2 (embaixo)</em>: setas · <em>SHIFT dir.</em> drift · <em>ENTER</em> item · <em>/</em> pula · <em>BACKSPACE</em> buzina<br>' +
+  'Joystick: <em>A</em> acelera · <em>X</em> freia · <em>LB/RB</em> drift · <em>B</em> item · <em>Y</em> pula · <em>VIEW</em> buzina';
 function updateHelp() { $('#help').innerHTML = numPlayers > 1 ? HELP2 : HELP1; }
 function showPanel(id) { for (const p of ['menu', 'pause', 'results', 'ranking', 'online']) $('#' + p).classList.toggle('hidden', p !== id); }
 
@@ -1309,7 +1506,7 @@ function packState(k) {
   const r = v => Math.round(v * 100) / 100;
   return { i: k.netId, x: r(k.x), y: r(k.y), a: r(k.angle), v: r(k.vAng), p: Math.round(k.speed), l: r(k.slip), c: r(k.charge),
     fl: (k.drifting ? 1 : 0) | (k.boost > 0 ? 2 : 0) | (k.spinT > 0 ? 4 : 0) | (k.rescueT > 0 ? 8 : 0) | (k.finished ? 16 : 0),
-    lap: k.lap, pr: k.prog, ft: r(k.finishT), it: k.item || '' };
+    lap: k.lap, pr: k.prog, ft: r(k.finishT), it: k.item || '', z: r(k.z) };
 }
 // só aceita posição com números de verdade e dentro do mapa (mensagem estranha é ignorada)
 const okNum = (v, a, b) => typeof v === 'number' && isFinite(v) && v >= a && v <= b;
@@ -1318,7 +1515,7 @@ function applyState(st) {
   if (!okNum(st.lap, -5, 10) || !okNum(st.pr, -1e5, 1e5) || !okNum(st.ft, 0, 1e4) || !okNum(st.fl, 0, 63)) return;
   const k = kartBy(st.i); if (!k || !k.remote) return;
   const it = ['tomate', 'leite', 'turbo'].includes(st.it) ? st.it : '';
-  k.net = { x: st.x, y: st.y, a: st.a, v: st.v, p: st.p, l: st.l, c: st.c, fl: st.fl, lap: st.lap, pr: st.pr, ft: st.ft, it, at: performance.now() };
+  k.net = { x: st.x, y: st.y, a: st.a, v: st.v, p: st.p, l: st.l, c: st.c, fl: st.fl, lap: st.lap, pr: st.pr, ft: st.ft, it, z: okNum(st.z, 0, 300) ? st.z : 0, at: performance.now() };
 }
 // kart de outro aparelho: desliza até onde ele deve estar agora (última posição + velocidade × tempo desde a mensagem)
 function netFollow(k, dt) {
@@ -1326,7 +1523,7 @@ function netFollow(k, dt) {
   const age = Math.min(.4, (performance.now() - st.at) / 1000);
   const px = st.x + Math.cos(st.v) * st.p * age, py = st.y + Math.sin(st.v) * st.p * age, f = Math.min(1, dt * 10);
   if (Math.hypot(px - k.x, py - k.y) > 80) { k.x = px; k.y = py; } else { k.x += (px - k.x) * f; k.y += (py - k.y) * f; }
-  k.angle += angDiff(st.a, k.angle) * f; k.vAng = st.v; k.speed = st.p; k.slip = st.l; k.charge = st.c;
+  k.angle += angDiff(st.a, k.angle) * f; k.vAng = st.v; k.speed = st.p; k.slip = st.l; k.charge = st.c; k.z += (st.z - k.z) * f;
   k.drifting = !!(st.fl & 1); k.boost = st.fl & 2 ? .1 : 0; k.rescueT = st.fl & 8 ? .1 : 0;
   if (st.fl & 4) { k.spinT = .1; k.spinVis += dt * 16; } else { k.spinT = 0; k.spinVis = 0; }
   k.surf = surfaceAt(k.x, k.y); k.lap = st.lap; k.maxLap = Math.max(k.maxLap, st.lap); k.prog = st.pr; k.idx = ((st.pr % N) + N) % N;
@@ -1585,6 +1782,7 @@ function action(pi, act) {
   if (act === 'item' && canAct(k)) useItem(k);
   if (act === 'horn' && (state === 'race' || state === 'countdown' || state === 'finished')) honk(k);
   if (act === 'rescue' && canAct(k) && k.dist > RW * .6) rescue(k);
+  if (act === 'jump' && canAct(k)) jump(k);
 }
 addEventListener('keydown', e => {
   if (e.target.tagName === 'INPUT') { if (e.code === 'Enter' || e.code === 'NumpadEnter') ({ iCode: netJoin, iNick: netCreate }[e.target.id] || (() => $('#bSave').click()))(); return; } // digitando o nome: o jogo não reage
@@ -1595,7 +1793,7 @@ addEventListener('keydown', e => {
   if (e.code === 'KeyM') { initAudio(); toggleMusic(); }
   if (e.code === 'Escape' || e.code === 'KeyP') togglePause();
   if (e.code === 'KeyR' && state !== 'menu' && humans.length < 2 && !NET.racing) startRace(); // em dupla o R fica perto do J1: reiniciar só pela pausa
-  if (racing) humans.forEach((k, pi) => { for (const act of ['item', 'horn', 'rescue']) if (binds(pi)[act].includes(e.code)) action(pi, act); });
+  if (racing) humans.forEach((k, pi) => { for (const act of ['item', 'horn', 'rescue', 'jump']) if (binds(pi)[act].includes(e.code)) action(pi, act); });
   if (menuOpen()) { // escolher piloto pelo teclado: A/D para o J1, setas para o J2 (ou para o J1, se estiver sozinho)
     const step = { KeyA: [0, -1], KeyD: [0, 1], ArrowLeft: [numPlayers > 1 ? 1 : 0, -1], ArrowRight: [numPlayers > 1 ? 1 : 0, 1] }[e.code];
     if (step) { initAudio(); sfx.click(); pickChar(step[0], (chosen[step[0]] + step[1] + CHARS.length) % CHARS.length); }
@@ -1605,10 +1803,22 @@ addEventListener('keydown', e => {
 addEventListener('keyup', e => { keys[e.code] = false; });
 addEventListener('blur', () => { for (const k in keys) keys[k] = false; });
 document.addEventListener('visibilitychange', () => { if (document.hidden && (state === 'race' || state === 'countdown')) togglePause(); });
-document.querySelectorAll('#touch button').forEach(b => {
+const tL = $('#tL'), tR = $('#tR');
+function steerTo(side) {
+  touch.left = side === 'left'; touch.right = side === 'right';
+  tL.classList.toggle('on', touch.left); tR.classList.toggle('on', touch.right);
+}
+for (const b of [tL, tR]) {
+  const at = e => { const a = tL.getBoundingClientRect(), z = tR.getBoundingClientRect(); steerTo(e.clientX < (a.right + z.left) / 2 ? 'left' : 'right'); };
+  b.addEventListener('pointerdown', e => { e.preventDefault(); try { b.setPointerCapture(e.pointerId); } catch (_) {} at(e); });
+  b.addEventListener('pointermove', e => { if (b.hasPointerCapture && b.hasPointerCapture(e.pointerId)) at(e); });
+  const up = e => { e.preventDefault(); steerTo(null); };
+  b.addEventListener('pointerup', up); b.addEventListener('pointercancel', up);
+}
+document.querySelectorAll('#touch button:not(#tL):not(#tR)').forEach(b => {
   const k = b.dataset.k, on = v => e => {
     e.preventDefault();
-    if (v && (k === 'item' || k === 'horn')) action(0, k);
+    if (v && (k === 'item' || k === 'horn' || k === 'jump')) action(0, k);
     touch[k] = v; b.classList.toggle('on', v);
   };
   b.addEventListener('pointerdown', on(true)); b.addEventListener('pointerup', on(false));
@@ -1616,6 +1826,13 @@ document.querySelectorAll('#touch button').forEach(b => {
 });
 
 function fit() {
+  if (isTouch) { // celular: a imagem ocupa a tela inteira; a largura interna cresce (até 560) em vez de sobrar faixa preta
+    const sw = innerWidth, sh = innerHeight, nw = clamp(Math.round(H * sw / sh / 2) * 2, 384, 560);
+    if (nw !== W) { W = nw; cv.width = W; cv.height = H; setLayout(1); }
+    const w = Math.min(sw, sh * W / H), h = w * H / W, wrap = $('#wrap');
+    wrap.style.width = w + 'px'; wrap.style.height = h + 'px'; wrap.style.left = (sw - w) / 2 + 'px'; wrap.style.top = (sh - h) / 2 + 'px';
+    wrap.style.setProperty('--u', (h / H) + 'px'); return;
+  }
   let w = innerWidth, h = w * 9 / 16; if (h > innerHeight) { h = innerHeight; w = h * 16 / 9; }
   const wrap = $('#wrap'); wrap.style.width = w + 'px'; wrap.style.height = h + 'px'; wrap.style.setProperty('--u', (w / 384) + 'px');
 }
@@ -1668,6 +1885,770 @@ function frame(now) {
   requestAnimationFrame(frame);
 }
 
+// ================= visual "Cartum Adesivo" + interações de desenho animado =================
+// Troca só as funções de DESENHO (a física não muda). Estilos: 'a' arcade, 'b' cartum (o escolhido), 'c' fim de tarde.
+// Noite em teste: abrir com #noite ou ?noite no endereço.
+(function () {
+const ORIG = { drawKart, drawScenery, drawBag, drawArch, buildSky, renderView, buildTrack, drawRamp };
+const COL0 = TRACKS.map(t => ({ ...t.col }));
+const CH0 = CHARS.map(c => ({ ...c }));
+
+// ---------- utilidades de cor ----------
+const hex = h => { h = h.replace('#', ''); return [0, 2, 4].map(i => parseInt(h.substr(i, 2), 16)); };
+const toHex = a => '#' + a.map(v => Math.round(clamp(v, 0, 255)).toString(16).padStart(2, '0')).join('');
+const mix = (a, b, t) => { const A = hex(a), B = hex(b); return toHex(A.map((v, i) => v + (B[i] - v) * t)); };
+const lit = (c, t) => mix(c, '#ffffff', t), drk = (c, t) => mix(c, '#000000', t);
+
+// ---------- os 3 estilos ----------
+const ESTILOS = {
+  a: { nome: 'Arcade Polido', ink: '#211d2c', ow: 1.1, sky: 'polido', grass: 'xadrez', vig: .22, warm: 0,
+       col: { a: '#3f9b3d', b: '#45a542', sp: ['#378d35', '#58b854'], shoulder: '#c79c60', road: '#53545e', road2: '#5b5c66', out: [0x2e, 0x72, 0x2c],
+              sky0: '#3d9fe8', sky1: '#cdeeff', fog: '205,236,255' } },
+  b: { nome: 'Cartum Adesivo', ink: '#3a1d10', ow: 1.9, sky: 'cartum', grass: 'listras', vig: 0, warm: 0, chunky: true,
+       col: { a: '#5ccf4a', b: '#4dbd3d', sp: ['#46b23a', '#7ee067'], shoulder: '#e6b86c', road: '#4a4a58', road2: '#535366', out: [0x3c, 0x9e, 0x36],
+              sky0: '#4cc3ff', sky1: '#c9f3ff', fog: '215,246,255' } },
+  c: { nome: 'Fim de Tarde', ink: null, ow: 0, sky: 'tarde', grass: 'xadrez', vig: .38, warm: 1,
+       col: { a: '#5c9a3d', b: '#64a345', sp: ['#528c36', '#86b752'], shoulder: '#cf9c5c', road: '#5a5462', road2: '#625b6b', out: [0x3e, 0x68, 0x34],
+              sky0: '#3a3d8c', sky1: '#ffb27a', fog: '255,196,160' } },
+};
+// noite: cada estilo tem a sua (tinta que escurece a cena, cores do céu e tipo de lua)
+const NOITE = {
+  a: { tint: '#5a68ac', sky0: '#26357e', sky1: '#6f86d6', fog: '120,140,210', lua: 'classica', win: '#ffe39a' },
+  b: { tint: '#6e74c4', sky0: '#2f48b0', sky1: '#86a0f0', fog: '130,150,230', lua: 'cartum', win: '#fff3a6' },
+  c: { tint: '#7c5c9e', sky0: '#3b2a7a', sky1: '#d08ab0', fog: '200,140,190', lua: 'quente', win: '#ffc46a' },
+};
+let E = null;
+
+// ---------- contorno genérico: desenha o sprite uma vez "em tinta" mais grosso, depois por cima normal ----------
+// Funciona com qualquer função de desenho: um Proxy troca todas as cores pela cor do contorno.
+function inkCtx(c, ink, w) {
+  let skip = false;
+  return new Proxy(c, {
+    get(t, k) {
+      if (k === 'fill') return (...a) => { if (skip) return; t.fillStyle = ink; t.fill(...a); t.strokeStyle = ink; const lw = t.lineWidth; t.lineWidth = w; t.lineJoin = 'round'; t.stroke(); t.lineWidth = lw; };
+      if (k === 'fillRect') return (x, y, ww, h) => { if (skip) return; t.fillStyle = ink; t.fillRect(x - w / 2, y - w / 2, ww + w, h + w); };
+      if (k === 'stroke') return () => { t.strokeStyle = ink; const lw = t.lineWidth; t.lineWidth = lw + w; t.stroke(); t.lineWidth = lw; };
+      if (k === 'strokeRect') return (...a) => { t.strokeStyle = ink; const lw = t.lineWidth; t.lineWidth = lw + w; t.strokeRect(...a); t.lineWidth = lw; };
+      if (k === 'fillText') return (...a) => { if (!skip) { t.fillStyle = ink; t.fillText(...a); } };
+      const v = t[k]; return typeof v === 'function' ? v.bind(t) : v;
+    },
+    set(t, k, v) {
+      if (k === 'fillStyle') { skip = typeof v === 'string' && /rgba\([^)]*,\s*0?\.\d+\s*\)/.test(v); return true; }
+      if (k === 'strokeStyle') return true;
+      t[k] = v; return true;
+    },
+  });
+}
+// s = escala total do sprite (pixels por unidade); longe demais não ganha contorno
+function outlined(c, s, fn) {
+  if (E && E.ink && s > 1.3) { c.save(); fn(inkCtx(c, E.ink, E.ow / s), true); c.restore(); }
+  fn(c, false);
+}
+const brilho = (c, x, y, rx, ry, a = .55) => { c.fillStyle = `rgba(255,255,255,${a})`; c.beginPath(); c.ellipse(x, y, rx, ry, -.4, 0, TAU); c.fill(); };
+const rr = (c, x, y, w, h, r) => { c.beginPath(); c.roundRect ? c.roundRect(x, y, w, h, r) : c.rect(x, y, w, h); };
+
+// ---------- kart ----------
+function kartBack(c, ch, o, front, L, ink) {
+  const body = ch.kart, dk = ch.dark, hi = lit(body, .35);
+  // rodas traseiras grandes e dianteiras espiando por cima
+  c.fillStyle = '#1c1c22';
+  rr(c, -3.75 + L * 1.2, -4.05, 1.5, 1.35, .35); c.fill(); rr(c, 2.25 + L * 1.2, -4.05, 1.5, 1.35, .35); c.fill();
+  { // aerofólio (só de costas)
+    if (!front) { c.fillStyle = dk; rr(c, -3.1 + L * 1.1, -5.05, 6.2, .75, .35); c.fill(); c.fillRect(-2.2 + L, -4.5, .5, .6); c.fillRect(1.7 + L, -4.5, .5, .6);
+      if (!ink) { c.fillStyle = lit(dk, .3); c.fillRect(-2.9 + L * 1.1, -5, 5.8, .22); } }
+  }
+  // carroceria
+  c.fillStyle = body; c.beginPath(); c.moveTo(-3.55, -1.4); c.lineTo(3.55, -1.4); c.lineTo(2.75 + L, -4.15); c.lineTo(-2.75 + L, -4.15); c.closePath(); c.fill();
+  if (!ink) {
+    // luz em cima, sombra embaixo: é o que tira a cara de "recortado"
+    c.fillStyle = hi; c.beginPath(); c.moveTo(-3.0 + L * .85, -3.55); c.lineTo(3.0 + L * .85, -3.55); c.lineTo(2.75 + L, -4.15); c.lineTo(-2.75 + L, -4.15); c.closePath(); c.fill();
+    c.fillStyle = 'rgba(255,255,255,.55)'; c.fillRect(-2.2 + L, -4.05, 1.6, .3);
+    c.fillStyle = drk(body, .18); c.beginPath(); c.moveTo(-3.55, -1.4); c.lineTo(3.55, -1.4); c.lineTo(3.35, -2.0); c.lineTo(-3.35, -2.0); c.closePath(); c.fill();
+    c.fillStyle = dk; rr(c, -3, -2.75, 6, 1.05, .3); c.fill();
+  }
+  // rodas traseiras com banda de rodagem
+  for (const wx of [-4.55 + L * .3, 2.55 + L * .3]) {
+    c.fillStyle = '#1c1c22'; rr(c, wx, -2.75, 2, 2.75, .55); c.fill();
+    if (!ink) { c.fillStyle = '#3d3d48'; c.fillRect(wx + .35, -2.5, .35, 2.3); c.fillStyle = '#2a2a33'; const ro = ((o.t || 0) * 9) % .6; for (let y = -2.4 + ro; y < -.2; y += .6) c.fillRect(wx + .9, y, .8, .25); }
+  }
+  // para-choque
+  c.fillStyle = '#2a2a34'; rr(c, -3.7, -1.95, 7.4, .75, .37); c.fill();
+  if (!ink) {
+    c.fillStyle = '#5a5a6e'; c.fillRect(-3.4, -1.9, 6.8, .2);
+    if (front) { // faróis acesos
+      for (const ex of [-1.9, 1.9]) { c.fillStyle = 'rgba(255,240,170,.45)'; c.beginPath(); c.arc(ex, -2.25, .9, 0, TAU); c.fill(); c.fillStyle = '#fff6c8'; c.beginPath(); c.arc(ex, -2.25, .45, 0, TAU); c.fill(); }
+      c.fillStyle = '#2a2a2a'; rr(c, -.9, -2.6, 1.8, .9, .2); c.fill();
+    } else {
+      for (const ex of [-1.9, 1.9]) { c.fillStyle = '#c9c9d3'; c.beginPath(); c.arc(ex, -2.2, .48, 0, TAU); c.fill(); c.fillStyle = '#34343e'; c.beginPath(); c.arc(ex, -2.2, .24, 0, TAU); c.fill(); }
+      c.fillStyle = '#fff'; rr(c, -.9, -2.62, 1.8, .9, .2); c.fill();
+      c.fillStyle = ch.kart; c.font = 'bold .8px Arial'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(String(CHARS.indexOf(CHARS.find(q => q.id === ch.id)) + 1), 0, -2.15);
+    }
+  }
+}
+function kartSide(c, ch, o, ink) {
+  const body = ch.kart, dk = ch.dark;
+  // rodas
+  for (const [wx, r] of [[-3, 1.25], [3.1, 1.12]]) { c.fillStyle = '#1c1c22'; c.beginPath(); c.arc(wx, -r, r, 0, TAU); c.fill(); if (!ink) { c.fillStyle = '#9a9aa8'; c.beginPath(); c.arc(wx, -r, r * .38, 0, TAU); c.fill(); c.fillStyle = '#3d3d48'; c.beginPath(); c.arc(wx, -r, r * .8, -2.4, -1.2); c.lineWidth = .25; c.strokeStyle = '#3d3d48'; c.stroke(); } }
+  // aerofólio
+  c.fillStyle = dk; c.fillRect(-5, -4.4, 1.3, .6); c.fillRect(-4.6, -3.9, .4, .9);
+  // carroceria
+  c.fillStyle = body; c.beginPath(); c.moveTo(-4.3, -1.7); c.lineTo(4.4, -1.6); c.lineTo(4.9, -2.5); c.lineTo(1.3, -3.15); c.lineTo(-3.4, -3.55); c.lineTo(-4.55, -2.6); c.closePath(); c.fill();
+  if (!ink) {
+    c.fillStyle = lit(body, .35); c.beginPath(); c.moveTo(-3.4, -3.55); c.lineTo(1.3, -3.15); c.lineTo(4.9, -2.5); c.lineTo(4.6, -2.25); c.lineTo(1.2, -2.8); c.lineTo(-3.4, -3.15); c.closePath(); c.fill();
+    c.fillStyle = dk; c.fillRect(-4.2, -2.15, 8.6, .55);
+    c.fillStyle = '#fff'; c.beginPath(); c.arc(.6, -2.75, .6, 0, TAU); c.fill();
+    c.fillStyle = '#c9c9d3'; c.fillRect(-5.2, -3.1, 1, .55);
+  }
+  if (o.boost && !ink) { c.fillStyle = (o.t * 24 | 0) % 2 ? '#ffd23f' : '#ff7b00'; c.beginPath(); c.moveTo(-5.2, -3.35); c.lineTo(-5.2, -2.35); c.lineTo(-6.6 - Math.random() * 1.6, -2.85); c.fill(); }
+}
+// luzes da noite: guardadas em coordenadas de tela e "acesas" depois do escurecimento
+let GLOWS = [];
+function glowAt(c, x, y, r, col, sy = 1) {
+  if (!E || !E.noite) return;
+  const m = c.getTransform(), sc = Math.hypot(m.a, m.b);
+  GLOWS.push({ x: m.a * x + m.c * y + m.e, y: m.b * x + m.d * y + m.f, r: r * sc, col, sy });
+}
+const kartOf = ch => karts.find(q => q.ch === ch);
+// estrela de 5 pontas (tontura de desenho animado)
+function estrela(c, x, y, r, col) { c.fillStyle = col; c.beginPath(); for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, q = i % 2 ? r * .45 : r; c[i ? 'lineTo' : 'moveTo'](x + Math.cos(a) * q, y + Math.sin(a) * q); } c.closePath(); c.fill(); }
+function drawKartNovo(c, x, y, s, ch, o) {
+  const k = kartOf(ch), toonOn = E.toon && k, t = o.t || 0;
+  c.save(); c.translate(x, y); c.scale(s, s);
+  const z = o.hop || 0, sh = 1 / (1 + z * .06);
+  const view = o.view || 0, front = view === 2, L = front ? 0 : (o.lean || 0);
+  // poça de luz do farol no chão (noite)
+  if (view === 0) glowAt(c, 0, -3.2, 7, 'rgba(255,236,170,.55)', .32);
+  else if (front) glowAt(c, 0, 1.6, 7, 'rgba(255,236,170,.55)', .32);
+  else glowAt(c, 6.5 * view, -.6, 6, 'rgba(255,236,170,.5)', .35);
+  // sombra (no fim de tarde ela é comprida, deitada para o lado oposto ao sol)
+  c.fillStyle = `rgba(${E.warm ? '40,20,60' : '0,0,0'},${((E.warm ? .42 : .35) * sh).toFixed(3)})`;
+  c.beginPath(); c.ellipse(E.warm ? -1.6 : 0, 0, (E.warm ? 6.4 : 4.7) * sh, 1.15 * sh, 0, 0, TAU); c.fill();
+  c.translate(0, -z);
+  if (o.squash) c.scale(1 + o.squash * .32, 1 - o.squash * .32); // pouso: amassa (mais exagerado no desenho animado)
+  if (toonOn) {
+    if (k.z > 0) { const st = clamp(k.vz / 260, -.12, .22); c.scale(1 - st * .55, 1 + st); } // subindo: estica; caindo: encolhe
+    if (k.drifting) c.rotate(-k.driftDir * .13); // drift: o kart "deita" de lado
+    if (k.boost > 0 && k.z === 0) c.scale(1 - .04 * Math.sin(t * 40), 1 + .04 * Math.sin(t * 40)); // turbo: tremedeira
+  }
+  const bob = toonOn ? Math.sin(t * 22 + CHARS.indexOf(ch)) * .14 * Math.min(1, Math.abs(k.speed) / 150) : 0; // cabeça balança com o motor
+  // olhar para trás quando tem alguém colado
+  const atras = toonOn && k.isPlayer && karts.some(q => q !== k && q.prog < k.prog && k.prog - q.prog < 3);
+  if (view === 1 || view === -1) {
+    c.scale(view, 1);
+    outlined(c, s, (cc, ink) => { kartSide(cc, ch, o, ink); drawHead(cc, ch.id, -1, -4.8 + bob, 1); if (!ink) brilho(cc, -1.8, -6.6 + bob, .55, .32); });
+    glowAt(c, 4.7, -2.4, 1.6, 'rgba(255,240,180,.9)');
+  } else {
+    outlined(c, s, (cc, ink) => { kartBack(cc, ch, o, front, L, ink); drawHead(cc, ch.id, L * 1.5, -5.6 + bob, front ? 2 : atras ? 1 : 0); if (!ink) brilho(cc, L * 1.5 - .8, -7.3 + bob, .6, .35); });
+    if (front) for (const ex of [-1.9, 1.9]) glowAt(c, ex, -2.25, 2.4, 'rgba(255,240,180,.95)');
+    else for (const ex of [-3.1, 3.1]) { glowAt(c, ex + L * .3, -2.3, 1.5, 'rgba(255,60,60,.9)'); if (E.noite) { c.fillStyle = '#ff4a4a'; c.fillRect(ex + L * .3 - .45, -2.6, .9, .55); } }
+    if (o.boost && !front) {
+      for (const ex of [-1.9, 1.9]) {
+        if (toonOn) { // chama de desenho animado: gota laranja com miolo amarelo
+          const f = 1 + Math.sin(t * 50 + ex) * .25;
+          c.fillStyle = '#ff6a00'; c.beginPath(); c.moveTo(ex - .7, -1.9); c.quadraticCurveTo(ex, 1.8 * f, ex + .7, -1.9); c.fill();
+          c.fillStyle = '#ffe14d'; c.beginPath(); c.moveTo(ex - .35, -1.9); c.quadraticCurveTo(ex, .4 * f, ex + .35, -1.9); c.fill();
+        } else { c.fillStyle = (t * 24 | 0) % 2 ? '#ffd23f' : '#ff7b00'; c.beginPath(); c.moveTo(ex - .5, -1.8); c.lineTo(ex + .5, -1.8); c.lineTo(ex, -.3 + Math.random() * 1.6); c.fill(); }
+        glowAt(c, ex, -1, 2.2, 'rgba(255,150,40,.8)');
+      }
+    }
+  }
+  if (o.drifting) { c.fillStyle = o.charge > 1.4 ? '#ff8c1a' : o.charge > 0.7 ? '#4cc9ff' : '#ffffff'; for (let q = 0; q < 8; q++) c.fillRect((q % 2 ? 3.6 : -3.6) + (Math.random() - .5) * 2.4, -Math.random() * 2, .55, .55); }
+  if (o.spin) {
+    if (toonOn) { // tontura: estrelas grandes girando + espiral
+      for (let q = 0; q < 4; q++) { const a = t * 7 + q * TAU / 4; c.save(); if (E.ink) estrela(c, Math.cos(a) * 3.4, -10 + Math.sin(a) * .9, 1.25, E.ink); estrela(c, Math.cos(a) * 3.4, -10 + Math.sin(a) * .9, 1, '#ffd23f'); c.restore(); }
+      c.strokeStyle = '#ffffff'; c.lineWidth = .35; c.beginPath(); for (let a = 0; a < 12; a += .3) { const r = a * .12; c.lineTo(Math.cos(a + t * 12) * r, -7.4 + Math.sin(a + t * 12) * r * .5); } c.stroke();
+    } else spinStars(c, o);
+  }
+  if (toonOn && k.surf === 0 && k.z === 0 && Math.abs(k.speed) > 40 && !o.spin) { // suando na grama
+    const dy = (t * 2) % 1; c.globalAlpha *= 1 - dy;
+    c.fillStyle = '#7fd4ff'; c.beginPath(); c.moveTo(2.6, -8.2 + dy * 2); c.quadraticCurveTo(3.4, -6.6 + dy * 2, 2.6, -6.4 + dy * 2); c.quadraticCurveTo(1.8, -6.6 + dy * 2, 2.6, -8.2 + dy * 2); c.fill();
+    c.fillStyle = '#fff'; c.fillRect(2.4, -7.1 + dy * 2, .3, .4);
+  }
+  c.restore();
+}
+
+// ---------- cenário ----------
+function arvore(c, o, ink) {
+  const k = .8 + o.v * .6; c.scale(k, k);
+  const g0 = E.warm ? '#2f5a2c' : E.chunky ? '#2f9a3a' : '#1f6e2e', g1 = E.warm ? '#4a7d34' : E.chunky ? '#49c04f' : '#2e8b3e', g2 = E.warm ? '#9cb64a' : E.chunky ? '#8ae86a' : '#56b85a';
+  c.fillStyle = '#6b4423'; c.beginPath(); c.moveTo(-1.2, 0); c.lineTo(1.2, 0); c.lineTo(.8, -8); c.lineTo(-.8, -8); c.fill();
+  if (!ink) { c.fillStyle = '#4e3018'; c.fillRect(.2, -8, .6, 8); }
+  c.fillStyle = g0; c.beginPath(); c.arc(0, -12, 6.2, 0, TAU); c.arc(-3.6, -10, 3.4, 0, TAU); c.arc(3.6, -10, 3.4, 0, TAU); c.fill();
+  if (!ink) {
+    c.fillStyle = g1; c.beginPath(); c.arc(-1, -13.2, 4.6, 0, TAU); c.arc(-3.6, -10.8, 2.4, 0, TAU); c.fill();
+    c.fillStyle = g2; c.beginPath(); c.arc(-2, -15, 2, 0, TAU); c.arc(-4.4, -11.6, 1, 0, TAU); c.fill();
+    if (o.v > .55) { c.fillStyle = E.warm ? '#ff8a3a' : '#e63946'; for (const [fx, fy] of [[2.5, -12], [-.5, -9.5], [3.4, -9]]) { c.beginPath(); c.arc(fx, fy, .7, 0, TAU); c.fill(); } }
+  }
+}
+function engradado(c, o, ink) {
+  c.fillStyle = '#a0703c'; c.fillRect(-4, -4.5, 8, 4.5);
+  const fr = o.v > .5 ? ['#ff9f1c', '#ffc46b'] : ['#e63946', '#ff8a8a'];
+  c.fillStyle = fr[0]; c.beginPath(); for (let k = 0; k < 5; k++) c.arc(-3.2 + k * 1.6, -5, 1.05, 0, TAU); c.fill();
+  if (!ink) {
+    c.fillStyle = '#7a5229'; c.fillRect(-4, -3, 8, .5); c.fillRect(-4, -1.5, 8, .5); c.fillRect(-4, -4.5, .6, 4.5); c.fillRect(3.4, -4.5, .6, 4.5);
+    c.fillStyle = '#c08a50'; c.fillRect(-3.4, -4.4, 6.8, .35);
+    c.fillStyle = fr[1]; for (let k = 0; k < 5; k++) { c.beginPath(); c.arc(-3.5 + k * 1.6, -5.35, .35, 0, TAU); c.fill(); }
+  }
+}
+function placa(c, ink) {
+  c.fillStyle = '#4a4a55'; c.fillRect(-7.2, -10, 1.2, 10); c.fillRect(6, -10, 1.2, 10);
+  c.fillStyle = TR.def.board; rr(c, -10.5, -19.5, 21, 10.8, 1); c.fill();
+  if (!ink) {
+    c.fillStyle = '#ffd23f'; rr(c, -10.5, -19.5, 21, 10.8, 1); c.lineWidth = .7; c.strokeStyle = '#ffd23f'; c.stroke();
+    c.fillStyle = drk(TR.def.board, .25); c.fillRect(-10, -10.6, 20, 1.5);
+    c.fillStyle = 'rgba(255,255,255,.25)'; c.fillRect(-10, -19, 20, 1.2);
+    c.fillStyle = '#fff'; c.font = 'bold 3.8px Arial'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('BARATÃO', 0, -15.3);
+    c.fillStyle = '#ffd23f'; c.font = 'bold 1.9px Arial'; c.fillText('SOMOS TODOS', 0, -11.9);
+    c.fillStyle = '#6a6a78'; c.fillRect(-7, -10, .4, 10); c.fillRect(6.2, -10, .4, 10);
+  }
+}
+function drawSceneryNovo(c, o, x, y, s) {
+  if (TR.def.snow) return outlined(c, s, cc => ORIG.drawScenery(cc, o, x, y, s));
+  c.save(); c.translate(x, y); c.scale(s, s);
+  const sw = E.warm ? -2 : 0;
+  if (MARCOS[o.type] && o.type !== 'palm') { outlined(c, s, (cc, ink) => MARCOS[o.type](cc, o, ink)); c.restore(); return; }
+  if (o.type !== 'lamp') { c.fillStyle = `rgba(${E.warm ? '40,20,60,.32' : '0,0,0,.25'})`; c.beginPath(); c.ellipse(sw, 0, o.type === 'board' ? 9 : E.warm ? 7.5 : 5, 1.3, 0, 0, TAU); c.fill(); }
+  if (o.type === 'lamp') {
+    glowAt(c, 0, 0, 16, 'rgba(255,214,140,.45)', .3);
+    outlined(c, s, (cc, ink) => { cc.fillStyle = '#3c3f4c'; cc.fillRect(-.6, -24, 1.2, 24); cc.fillRect(-.6, -24, 4.5, 1); cc.fillStyle = '#2b2d36'; rr(cc, 2.6, -24.4, 3, 1.6, .5); cc.fill(); if (!ink) { cc.fillStyle = '#fff3c4'; cc.fillRect(3, -23, 2.2, .6); } });
+    glowAt(c, 4.1, -22.4, 7, 'rgba(255,225,150,.75)');
+  } else
+  outlined(c, s, (cc, ink) => { if (o.type === 'tree') arvore(cc, o, ink); else if (o.type === 'palm') MARCOS.palm(cc, o, ink); else if (o.type === 'crate') engradado(cc, o, ink); else placa(cc, ink); });
+  if (o.type === 'board') { glowAt(c, -6, -21, 4, 'rgba(255,240,200,.7)'); glowAt(c, 6, -21, 4, 'rgba(255,240,200,.7)'); }
+  c.restore();
+}
+function drawBagNovo(c, x, y, s, t) {
+  c.save(); c.translate(x, y); c.scale(s, s);
+  c.fillStyle = 'rgba(0,0,0,.3)'; c.beginPath(); c.ellipse(0, 0, 3, .7, 0, 0, TAU); c.fill();
+  c.translate(0, -2 - Math.sin(t * 3) * .7);
+  glowAt(c, 0, -3, 5, 'rgba(255,220,90,.45)');
+  outlined(c, s, (cc, ink) => {
+    cc.strokeStyle = '#8e1414'; cc.lineWidth = .55; cc.beginPath(); cc.arc(0, -5.6, 1.4, Math.PI, 0); cc.stroke();
+    cc.fillStyle = '#ffd23f'; rr(cc, -2.9, -5.7, 5.8, 5.7, .5); cc.fill();
+    if (ink) return;
+    cc.fillStyle = '#f0a800'; cc.fillRect(1.7, -5.6, 1.1, 5.5);
+    cc.fillStyle = '#fff1a8'; cc.fillRect(-2.6, -5.5, .7, 5);
+    cc.fillStyle = '#d99600'; cc.fillRect(-2.9, -1, 5.8, 1);
+    cc.fillStyle = (t * 6 | 0) % 2 ? '#d62828' : '#ffffff'; cc.font = 'bold 4.4px Arial'; cc.textAlign = 'center'; cc.textBaseline = 'middle'; cc.fillText('?', -.2, -3.1);
+  });
+  c.restore();
+}
+function drawArchNovo(a, b) {
+  const h = 26, c = ctx;
+  for (const p of [a, b]) {
+    c.fillStyle = '#c9cbd3'; c.fillRect(p.sx - 1.2 * p.s, p.sy - h * p.s, 2.4 * p.s, h * p.s);
+    c.fillStyle = '#f2f3f7'; c.fillRect(p.sx - 1.2 * p.s, p.sy - h * p.s, .8 * p.s, h * p.s);
+    c.fillStyle = '#8e909c'; c.fillRect(p.sx + .6 * p.s, p.sy - h * p.s, .6 * p.s, h * p.s);
+  }
+  const ta = a.sy - h * a.s, tb = b.sy - h * b.s, bh = 8;
+  const quad = (t0, t1, col) => { c.fillStyle = col; c.beginPath(); c.moveTo(a.sx, ta + t0 * a.s); c.lineTo(b.sx, tb + t0 * b.s); c.lineTo(b.sx, tb + t1 * b.s); c.lineTo(a.sx, ta + t1 * a.s); c.fill(); };
+  if (E.ink) quad(-.5, bh + .5, E.ink);
+  quad(0, bh, TR.def.board); quad(0, 1.2, lit(TR.def.board, .3)); quad(bh - 1.4, bh, drk(TR.def.board, .3));
+  // xadrez embaixo da faixa
+  const n = 24;
+  for (let i = 0; i < n; i++) for (let r = 0; r < 2; r++) {
+    const t0 = i / n, t1 = (i + 1) / n, y0 = bh + r * 1.2, y1 = y0 + 1.2;
+    const P = (t, yy) => [a.sx + (b.sx - a.sx) * t, (ta + yy * a.s) + ((tb + yy * b.s) - (ta + yy * a.s)) * t];
+    c.fillStyle = (i + r) % 2 ? '#111' : '#fff'; c.beginPath(); c.moveTo(...P(t0, y0)); c.lineTo(...P(t1, y0)); c.lineTo(...P(t1, y1)); c.lineTo(...P(t0, y1)); c.fill();
+  }
+  const s = (a.s + b.s) / 2, mx = (a.sx + b.sx) / 2, my = (ta + tb) / 2 + bh * s / 2;
+  c.font = `bold ${Math.max(4, 4.6 * s)}px Arial`; c.textAlign = 'center'; c.textBaseline = 'middle';
+  c.fillStyle = drk(TR.def.board, .45); c.fillText('LARGADA · BARATÃO GP', mx + .5 * s, my + .5 * s);
+  c.fillStyle = '#ffd23f'; c.fillText('LARGADA · BARATÃO GP', mx, my);
+}
+
+// ---------- céu (horizonte de 1536 x 70) ----------
+function nuvem(s, x, y, w, base, sombra, ink) {
+  const blobs = [[0, 0, 1], [.8, -.35, .8], [1.6, 0, .9], [2.3, .15, .6], [-.7, .15, .65]];
+  if (ink) { s.fillStyle = ink; for (const [dx, dy, r] of blobs) { s.beginPath(); s.arc(x + dx * w, y + dy * w, r * w + 1.2, 0, TAU); s.fill(); } }
+  s.fillStyle = sombra; for (const [dx, dy, r] of blobs) { s.beginPath(); s.arc(x + dx * w, y + dy * w + 1.5, r * w, 0, TAU); s.fill(); }
+  s.fillStyle = base; for (const [dx, dy, r] of blobs) { s.beginPath(); s.arc(x + dx * w, y + dy * w - .5, r * w * .92, 0, TAU); s.fill(); }
+  s.fillStyle = sombra; s.fillRect(x - .9 * w, y + .3 * w, 3.6 * w, .9 * w);
+}
+function buildSkyNovo(def, R) {
+  if (def.sky === 'freezer') return ORIG.buildSky(def, R);
+  if (E.noite) return buildSkyNoite(def, R);
+  if (def.sky === 'manaus') return buildSkyManaus(def, R);
+  const sky = document.createElement('canvas'); sky.width = SW; sky.height = SH;
+  const s = sky.getContext('2d'), st = E.sky, ink = E.ink;
+  const morro = (col, base, a1, a2, f1, f2) => { s.fillStyle = col; s.beginPath(); s.moveTo(0, SH); for (let x = 0; x <= SW; x += 4) s.lineTo(x, SH - base - Math.sin(x / f1) * a1 - Math.sin(x / f2 + 1) * a2); s.lineTo(SW, SH); s.fill(); };
+  if (st === 'tarde') {
+    // sol baixo + nuvens rosadas
+    for (const sx of [300, 300 + SW]) { const g = s.createRadialGradient(sx, SH - 14, 2, sx, SH - 14, 60); g.addColorStop(0, 'rgba(255,240,200,1)'); g.addColorStop(.25, 'rgba(255,200,120,.7)'); g.addColorStop(1, 'rgba(255,150,90,0)'); s.fillStyle = g; s.fillRect(sx - 60, 0, 120, SH); }
+    s.fillStyle = '#fff4d6'; s.beginPath(); s.arc(300, SH - 16, 11, 0, TAU); s.fill();
+    for (let i = 0; i < 12; i++) { const x = R() * SW, y = 6 + R() * 14; s.fillStyle = '#ffb3a0'; s.beginPath(); s.ellipse(x, y, 16 + R() * 18, 2 + R() * 1.6, 0, 0, TAU); s.fill(); s.fillStyle = '#c98ab0'; s.beginPath(); s.ellipse(x + 4, y + 2, 14 + R() * 10, 1.4, 0, 0, TAU); s.fill(); }
+    morro('#8a6a9e', 20, 7, 4, 110, 41);
+    morro('#6d5486', 13, 5, 3, 70, 29);
+  } else {
+    if (st === 'cartum') { for (const sx of [1100]) { s.fillStyle = 'rgba(255,240,140,.5)'; s.beginPath(); s.arc(sx, 16, 13, 0, TAU); s.fill(); s.fillStyle = ink; s.beginPath(); s.arc(sx, 16, 9.2, 0, TAU); s.fill(); s.fillStyle = '#ffe14d'; s.beginPath(); s.arc(sx, 16, 8, 0, TAU); s.fill(); s.fillStyle = '#fff6b0'; s.beginPath(); s.arc(sx - 2.5, 13.5, 2.4, 0, TAU); s.fill(); } }
+    for (let i = 0; i < 11; i++) { const x = R() * SW, y = 10 + R() * 12, w = st === 'cartum' ? 6 + R() * 3 : 4.5 + R() * 2.5; nuvem(s, x, y, w, '#ffffff', st === 'cartum' ? '#d8f0ff' : '#dbe9f5', st === 'cartum' ? ink : null); }
+    morro(st === 'cartum' ? '#9ad98a' : '#86b5cc', 18, 8, 4, 90, 33);
+    if (st === 'cartum') { s.strokeStyle = ink; s.lineWidth = 1; s.beginPath(); for (let x = 0; x <= SW; x += 4) s[x ? 'lineTo' : 'moveTo'](x, SH - 18 - Math.sin(x / 90) * 8 - Math.sin(x / 33 + 1) * 4); s.stroke(); }
+  }
+  // prédios com lateral sombreada e janelas
+  const pal = st === 'tarde' ? ['#4b3b6b', '#56457a', '#423460'] : st === 'cartum' ? ['#f2a65a', '#8fb8de', '#c4a7e7', '#f7d470'] : ['#8b8fa8', '#9ca1b8', '#7b7f99', '#a39a8c'];
+  for (let x = 0; x < SW; x += 16 + R() * 18) {
+    const w = 12 + R() * 16, h = 14 + R() * 26, col = pal[(x | 0) % pal.length];
+    if (ink) { s.fillStyle = ink; s.fillRect(x - .8, SH - h - .8, w + 1.6, h + 1); }
+    s.fillStyle = col; s.fillRect(x, SH - h, w, h);
+    s.fillStyle = drk(col, .2); s.fillRect(x + w * .72, SH - h, w * .28, h);
+    s.fillStyle = lit(col, .25); s.fillRect(x, SH - h, w, 1.5);
+    const win = st === 'tarde' ? '#ffd27a' : st === 'cartum' ? '#ffffff' : '#d8e6ff';
+    for (let wy = SH - h + 4; wy < SH - 4; wy += 5) for (let wx = x + 2; wx < x + w * .7 - 2; wx += 4) if (R() < (st === 'tarde' ? .45 : .65)) { s.fillStyle = win; s.fillRect(wx, wy, 2, 2.2); }
+  }
+  // lojas Baratão com toldo listrado
+  for (const bx of [180, 950]) {
+    if (ink) { s.fillStyle = ink; s.fillRect(bx - 5, SH - 44, 102, 44); }
+    s.fillStyle = st === 'tarde' ? '#d8c3b0' : '#f2efe6'; s.fillRect(bx, SH - 34, 92, 34);
+    s.fillStyle = st === 'tarde' ? '#b8a090' : '#dcd6c8'; s.fillRect(bx + 70, SH - 34, 22, 34);
+    s.fillStyle = '#d62828'; s.fillRect(bx - 4, SH - 43, 100, 12);
+    s.fillStyle = '#a81e1e'; s.fillRect(bx - 4, SH - 33, 100, 2);
+    s.fillStyle = '#ffd23f'; s.font = 'bold 9px Arial'; s.textAlign = 'center'; s.textBaseline = 'alphabetic'; s.fillText('BARATÃO', bx + 46, SH - 33.5);
+    for (let k = 0; k < 10; k++) { s.fillStyle = k % 2 ? '#ffffff' : '#d62828'; s.beginPath(); s.moveTo(bx + k * 9.2, SH - 31); s.lineTo(bx + k * 9.2 + 9.2, SH - 31); s.lineTo(bx + k * 9.2 + 9.2, SH - 27); s.arc(bx + k * 9.2 + 4.6, SH - 27, 4.6, 0, Math.PI); s.fill(); }
+    s.fillStyle = st === 'tarde' ? '#ffcf7a' : '#6fb3d9'; s.fillRect(bx + 8, SH - 21, 76, 10);
+    s.fillStyle = 'rgba(255,255,255,.4)'; s.fillRect(bx + 10, SH - 20, 10, 8);
+    s.fillStyle = '#555'; s.fillRect(bx + 38, SH - 11, 16, 11);
+  }
+  // fileira de árvores na frente
+  const tc = st === 'tarde' ? ['#2c3550', '#3a4562'] : st === 'cartum' ? ['#2f9a3a', '#5ccf4a'] : ['#2b7a35', '#3f9446'];
+  if (ink) { s.fillStyle = ink; for (let x = 0; x < SW; x += 7) { s.beginPath(); s.arc(x, SH - 2, 6.4, 0, TAU); s.fill(); } }
+  const RR = rng(77);
+  for (let x = 0; x < SW; x += 7) { const r = 5 + RR() * 4; s.fillStyle = tc[0]; s.beginPath(); s.arc(x, SH - 2, r, 0, TAU); s.fill(); s.fillStyle = tc[1]; s.beginPath(); s.arc(x - 1.5, SH - 3.5, r * .5, 0, TAU); s.fill(); }
+  return sky;
+}
+
+// céu de noite: uma camada normal (escurecida junto com tudo) e uma camada de LUZES (janelas, lua, estrelas) somada depois
+function buildSkyNoite(def, R) {
+  const N = E.noite, ink = E.ink;
+  const sky = document.createElement('canvas'); sky.width = SW; sky.height = SH; const s = sky.getContext('2d');
+  const gl = document.createElement('canvas'); gl.width = SW; gl.height = SH; const g = gl.getContext('2d');
+  sky.glow = gl;
+  for (let i = 0; i < 260; i++) { const x = R() * SW, y = R() * 44, b = R(); g.fillStyle = `rgba(255,255,255,${(.35 + b * .6).toFixed(2)})`; g.fillRect(x, y, b > .9 ? 2 : 1, b > .9 ? 2 : 1); }
+  if (N.lua === 'cartum') for (let i = 0; i < 18; i++) { const x = R() * SW, y = 4 + R() * 30; estrela(g, x, y, 3.2, ink); estrela(g, x, y, 2.4, '#fff3a6'); }
+  // lua (aparece 2 vezes porque o céu dá a volta)
+  for (const mx of [420, 420 + SW / 2]) {
+    const my = N.lua === 'quente' ? 30 : 16, r = N.lua === 'quente' ? 13 : 9;
+    const h = g.createRadialGradient(mx, my, r * .6, mx, my, r * 3.2); h.addColorStop(0, N.lua === 'quente' ? 'rgba(255,200,150,.55)' : 'rgba(200,220,255,.45)'); h.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = h; g.fillRect(mx - r * 3.2, my - r * 3.2, r * 6.4, r * 6.4);
+    if (N.lua === 'cartum') { // lua minguante dormindo, com contorno
+      g.fillStyle = ink; g.beginPath(); g.arc(mx, my, r + 1.2, 0, TAU); g.fill();
+      g.fillStyle = '#fff1a0'; g.beginPath(); g.arc(mx, my, r, 0, TAU); g.fill();
+      g.globalCompositeOperation = 'destination-out'; g.beginPath(); g.arc(mx + 5, my - 3, r - .5, 0, TAU); g.fill(); g.globalCompositeOperation = 'source-over';
+      g.strokeStyle = ink; g.lineWidth = .9; g.beginPath(); g.arc(mx - 4.2, my + 1, 1.6, .2, Math.PI - .2); g.stroke();
+      g.fillStyle = '#ff9ab0'; g.beginPath(); g.arc(mx - 3, my + 4, 1.2, 0, TAU); g.fill();
+    } else {
+      g.fillStyle = N.lua === 'quente' ? '#ffe2b8' : '#eef3ff'; g.beginPath(); g.arc(mx, my, r, 0, TAU); g.fill();
+      g.fillStyle = N.lua === 'quente' ? 'rgba(200,140,110,.35)' : 'rgba(150,165,200,.45)';
+      for (const [dx, dy, cr] of [[-3, -2, 2.2], [2.5, 2, 1.6], [-1, 4, 1.1], [3.5, -3.5, 1]]) { g.beginPath(); g.arc(mx + dx * r / 9, my + dy * r / 9, cr * r / 9, 0, TAU); g.fill(); }
+    }
+  }
+  s.fillStyle = drk(N.sky1, .25); s.beginPath(); s.moveTo(0, SH); for (let x = 0; x <= SW; x += 4) s.lineTo(x, SH - 18 - Math.sin(x / 90) * 8 - Math.sin(x / 33 + 1) * 4); s.lineTo(SW, SH); s.fill();
+  const pal = E.chunky ? ['#5a4a8a', '#3f5a9a', '#6a4f8f'] : E.warm ? ['#3e2f5c', '#4a3868'] : ['#3a4060', '#454b6e', '#33384f'];
+  for (let x = 0; x < SW; x += 16 + R() * 18) {
+    const w = 12 + R() * 16, h = 14 + R() * 26, col = pal[(x | 0) % pal.length];
+    if (ink) { s.fillStyle = ink; s.fillRect(x - .8, SH - h - .8, w + 1.6, h + 1); }
+    s.fillStyle = col; s.fillRect(x, SH - h, w, h); s.fillStyle = drk(col, .25); s.fillRect(x + w * .72, SH - h, w * .28, h);
+    for (let wy = SH - h + 4; wy < SH - 4; wy += 5) for (let wx = x + 2; wx < x + w * .7 - 2; wx += 4) {
+      s.fillStyle = '#1c1f2e'; s.fillRect(wx, wy, 2, 2.2);
+      if (R() < .55) { g.fillStyle = N.win; g.fillRect(wx, wy, 2, 2.2); }
+    }
+    if (R() < .3) { g.fillStyle = '#ff4a4a'; g.fillRect(x + w / 2 - .5, SH - h - 2, 1, 1); }
+  }
+  for (const bx of [180, 950]) { // lojas Baratão iluminadas
+    s.fillStyle = '#5a5060'; s.fillRect(bx, SH - 34, 92, 34);
+    s.fillStyle = '#7a1414'; s.fillRect(bx - 4, SH - 43, 100, 12);
+    const h = g.createRadialGradient(bx + 46, SH - 30, 4, bx + 46, SH - 30, 60); h.addColorStop(0, 'rgba(255,90,60,.5)'); h.addColorStop(1, 'rgba(255,60,40,0)'); g.fillStyle = h; g.fillRect(bx - 20, SH - 70, 132, 70);
+    g.fillStyle = '#d62828'; g.fillRect(bx - 4, SH - 43, 100, 12);
+    g.fillStyle = '#ffe14d'; g.font = 'bold 9px Arial'; g.textAlign = 'center'; g.textBaseline = 'alphabetic'; g.fillText('BARATÃO', bx + 46, SH - 33.5);
+    for (let k = 0; k < 10; k++) { s.fillStyle = k % 2 ? '#8a8a9a' : '#7a1414'; s.beginPath(); s.moveTo(bx + k * 9.2, SH - 31); s.lineTo(bx + k * 9.2 + 9.2, SH - 31); s.lineTo(bx + k * 9.2 + 9.2, SH - 27); s.arc(bx + k * 9.2 + 4.6, SH - 27, 4.6, 0, Math.PI); s.fill(); }
+    g.fillStyle = 'rgba(255,230,160,.9)'; g.fillRect(bx + 8, SH - 21, 76, 10);
+    s.fillStyle = '#333'; s.fillRect(bx + 38, SH - 11, 16, 11); g.fillStyle = 'rgba(255,230,160,.6)'; g.fillRect(bx + 38, SH - 11, 16, 11);
+  }
+  const RR = rng(77);
+  if (ink) { s.fillStyle = ink; for (let x = 0; x < SW; x += 7) { s.beginPath(); s.arc(x, SH - 2, 6.4, 0, TAU); s.fill(); } }
+  for (let x = 0; x < SW; x += 7) { const r = 5 + RR() * 4; s.fillStyle = '#1d2a33'; s.beginPath(); s.arc(x, SH - 2, r, 0, TAU); s.fill(); s.fillStyle = '#26363f'; s.beginPath(); s.arc(x - 1.5, SH - 3.5, r * .5, 0, TAU); s.fill(); }
+  return sky;
+}
+
+// ---------- interações de desenho animado ----------
+// balões de onomatopeia (BOING!, SPLAT!) e nuvenzinhas de poeira presos a um ponto do mundo
+let TOON = [];
+const prev = new WeakMap();
+function toonBurst(k, txt, cor = '#ffd23f') { TOON.push({ kind: 'burst', x: k.x, y: k.y, z: k.z + 17, t: 0, life: .7, txt, cor, rot: (Math.random() - .5) * .4 }); }
+function toonPuff(k, n = 5, big = 1) { for (let i = 0; i < n; i++) { const a = i / n * TAU + Math.random(); TOON.push({ kind: 'puff', x: k.x + Math.cos(a) * 4, y: k.y + Math.sin(a) * 4, z: 1, vx: Math.cos(a) * 26 * big, vy: Math.sin(a) * 26 * big, t: 0, life: .5 + Math.random() * .2, r: (1.6 + Math.random()) * big }); } }
+const humano = k => k.isPlayer || (views[0] && views[0].k === k);
+function toonEventos() { // compara o estado de cada kart com o quadro anterior
+  for (const k of karts) {
+    const p = prev.get(k) || { z: 0, vz: 0, spin: 0, boost: 0 };
+    if (p.z === 0 && k.z > 0 && k.vz > 80 && !k.jumpBoost) { toonPuff(k, 6); if (humano(k)) toonBurst(k, 'HOP!', '#7fd4ff'); }
+    if (k.jumpBoost && p.z === 0 && k.z > 0) { toonPuff(k, 8, 1.2); toonBurst(k, 'UHUUU!', '#ffd23f'); }
+    if (p.z > 0 && k.z === 0 && p.vz < -55) { toonPuff(k, 9, 1.3); if (nearAny(k, 200)) toonBurst(k, 'BOING!', '#ffd23f'); }
+    if (p.spin <= 0 && k.spinT > 0) { toonPuff(k, 10, 1.4); toonBurst(k, k.lastHit === 'leite' ? 'SPLASH!' : 'SPLAT!', k.lastHit === 'leite' ? '#ffffff' : '#ff5a5a'); }
+    if (p.boost <= 0 && k.boost > .5 && humano(k)) { toonBurst(k, 'VRUUM!', '#ff9f1c'); toonPuff(k, 4, .8); }
+    prev.set(k, { z: k.z, vz: k.vz, spin: k.spinT, boost: k.boost });
+  }
+}
+function toonUpdate(dt) {
+  for (const f of TOON) { f.t += dt; if (f.kind === 'puff') { f.x += f.vx * dt; f.y += f.vy * dt; f.vx *= .92; f.vy *= .92; f.z += 10 * dt; } else f.z += 8 * dt; }
+  TOON = TOON.filter(f => f.t < f.life);
+}
+function toonDraw() {
+  const ink = E.ink || '#2a1d3a';
+  const list = TOON.map(f => ({ f, p: projH(f.x, f.y, f.z) })).filter(o => o.p && o.p.depth > 12 && o.p.depth < 700).sort((a, b) => b.p.depth - a.p.depth);
+  for (const { f, p } of list) {
+    const k = f.t / f.life;
+    if (f.kind === 'puff') {
+      const r = clamp(f.r * (1 + k * 1.2) * p.s * .7, .8, 6.5); ctx.globalAlpha = .9 * (1 - k * k);
+      ctx.fillStyle = ink; ctx.beginPath(); ctx.arc(p.sx, p.sy, r + .9, 0, TAU); ctx.fill();
+      ctx.fillStyle = E.noite ? '#c8d2f0' : '#ffffff'; ctx.beginPath(); ctx.arc(p.sx, p.sy, r, 0, TAU); ctx.fill();
+      ctx.fillStyle = E.noite ? '#9aa6d0' : '#dfe6f2'; ctx.beginPath(); ctx.arc(p.sx + r * .25, p.sy + r * .3, r * .55, 0, TAU); ctx.fill();
+      ctx.globalAlpha = 1;
+    } else {
+      // estouro: cresce passando do ponto e volta (efeito "mola"), depois some
+      const pop = k < .18 ? (k / .18) * 1.25 : k < .3 ? 1.25 - (k - .18) / .12 * .25 : 1;
+      const sz = clamp(p.s * 2, 7, 11) * pop, R = sz * 2.4;
+      ctx.save(); ctx.translate(p.sx, p.sy); ctx.rotate(f.rot); ctx.globalAlpha = k > .75 ? 1 - (k - .75) / .25 : 1;
+      ctx.font = `${sz.toFixed(1)}px 'Press Start 2P', monospace`; const w = ctx.measureText(f.txt).width;
+      const rx = Math.max(R, w * .62 + sz), ry = R * .8;
+      ctx.beginPath(); for (let i = 0; i < 20; i++) { const a = i / 20 * TAU, q = i % 2 ? .78 : 1; ctx.lineTo(Math.cos(a) * rx * q, Math.sin(a) * ry * q); } ctx.closePath();
+      ctx.fillStyle = f.cor; ctx.fill(); ctx.lineWidth = 1.2; ctx.strokeStyle = ink; ctx.stroke();
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = ink; ctx.fillText(f.txt, .7, 1.2); ctx.fillStyle = f.cor === '#ffffff' ? '#2f6fd6' : '#ffffff'; ctx.fillText(f.txt, 0, .5);
+      ctx.restore(); ctx.globalAlpha = 1;
+    }
+  }
+}
+
+// ---------- chão (a textura de 2048 x 2048 que o Mode 7 percorre) ----------
+function pintaChao(T) {
+  const def = T.def, C = def.col, R = rng(def.seed + 7), P = T.P, N = T.N, AF = (TS / 2048) ** 2; // AF: mapa maior, mais detalhes
+  const trace = c => { c.beginPath(); c.moveTo(P[0][0], P[0][1]); for (const p of P) c.lineTo(p[0], p[1]); c.closePath(); };
+  const at = (c, i, off, fn) => { c.save(); c.translate(P[i][0] + T.NRM[i][0] * off, P[i][1] + T.NRM[i][1] * off); c.rotate(T.ANG[i]); fn(); c.restore(); };
+  const cv = document.createElement('canvas'); cv.width = cv.height = TS; const t = cv.getContext('2d');
+  // grama
+  if (E.grass === 'listras') { for (let k = -TS; k < TS * 2; k += 56) { t.fillStyle = (k / 56) & 1 ? C.a : C.b; t.beginPath(); t.moveTo(k, 0); t.lineTo(k + 56, 0); t.lineTo(k + 56 - TS * .6, TS); t.lineTo(k - TS * .6, TS); t.fill(); } }
+  else for (let y = 0; y < TS; y += 64) for (let x = 0; x < TS; x += 64) { t.fillStyle = ((x + y) / 64) % 2 ? C.a : C.b; t.fillRect(x, y, 64, 64); }
+  for (let i = 0; i < 9000 * AF; i++) { t.fillStyle = R() < .5 ? C.sp[0] : C.sp[1]; t.fillRect(R() * TS, R() * TS, 3, 3); }
+  // tufos de capim (V pequenininho, escuro com ponta clara)
+  for (let i = 0; i < 4200 * AF; i++) { const x = R() * TS, y = R() * TS; t.fillStyle = C.sp[0]; t.fillRect(x, y, 2, 4); t.fillRect(x + 3, y + 1, 2, 3); t.fillStyle = C.sp[1]; t.fillRect(x, y, 2, 1); t.fillRect(x + 3, y + 1, 2, 1); }
+  if (def.col.flowers !== false) for (let i = 0; i < 520 * AF; i++) { const x = R() * TS, y = R() * TS, col = ['#ffe066', '#ffffff', '#ff8fab'][i % 3]; t.fillStyle = col; t.fillRect(x - 2, y, 2, 2); t.fillRect(x + 2, y, 2, 2); t.fillRect(x, y - 2, 2, 2); t.fillRect(x, y + 2, 2, 2); t.fillStyle = '#ffb703'; t.fillRect(x, y, 2, 2); }
+  if (def.agua) pintaManaus(t, T, R);
+  t.save(); t.font = `900 ${def.text[3]}px "Arial Black", Arial, sans-serif`; t.textAlign = 'center'; t.textBaseline = 'middle'; t.lineJoin = 'round';
+  t.fillStyle = 'rgba(0,0,0,.18)'; t.fillText(def.text[0], def.text[1] + 6, def.text[2] + 8);
+  t.lineWidth = 16; t.strokeStyle = E.ink || '#fff'; if (E.ink) t.strokeText(def.text[0], def.text[1], def.text[2]);
+  t.lineWidth = E.ink ? 9 : 14; t.strokeStyle = '#fff'; t.strokeText(def.text[0], def.text[1], def.text[2]); t.fillStyle = C.txt; t.fillText(def.text[0], def.text[1], def.text[2]); t.restore();
+  t.lineJoin = t.lineCap = 'round';
+  // sombra suave da grama encostada na pista (dá relevo)
+  trace(t); t.lineWidth = RW + 56; t.strokeStyle = 'rgba(0,0,0,.13)'; t.stroke();
+  // acostamento de areia com grãos: desenhado numa camada própria para os grãos ficarem só nele
+  const camada = (largura, cor, graos) => {
+    const l = document.createElement('canvas'); l.width = l.height = TS; const g = l.getContext('2d'); g.lineJoin = g.lineCap = 'round';
+    trace(g); g.lineWidth = largura; g.strokeStyle = cor; g.stroke();
+    g.globalCompositeOperation = 'source-atop'; graos(g);
+    t.drawImage(l, 0, 0); l.width = l.height = 0; // libera memória (celular)
+  };
+  camada(RW + 34, C.shoulder, g => { for (let i = 0; i < 26000 * AF; i++) { g.fillStyle = R() < .5 ? drk(C.shoulder, .12) : lit(C.shoulder, .15); g.fillRect(R() * TS, R() * TS, 2, 2); } });
+  // zebra com volume (borda escura por dentro)
+  trace(t); t.lineWidth = RW + 14; t.strokeStyle = E.ink || 'rgba(0,0,0,.35)'; t.stroke();
+  trace(t); t.lineWidth = RW + 12; t.strokeStyle = C.curbA; t.stroke();
+  t.setLineDash([18, 18]); t.lineCap = 'butt'; trace(t); t.strokeStyle = C.curbB; t.stroke(); t.setLineDash([]); t.lineCap = 'round';
+  trace(t); t.lineWidth = RW + 3; t.strokeStyle = 'rgba(0,0,0,.28)'; t.stroke();
+  // asfalto: borda mais escura, faixa branca contínua, miolo gasto mais claro e granulado
+  camada(RW, drk(C.road, .18), g => {
+    trace(g); g.lineWidth = RW - 6; g.strokeStyle = C.line; g.stroke();
+    trace(g); g.lineWidth = RW - 10; g.strokeStyle = C.road; g.stroke();
+    trace(g); g.lineWidth = RW - 34; g.strokeStyle = C.road2; g.stroke();
+    for (let i = 0; i < 60000 * AF; i++) { g.fillStyle = R() < .5 ? 'rgba(0,0,0,.16)' : 'rgba(255,255,255,.09)'; g.fillRect(R() * TS, R() * TS, 2, 2); }
+    // marcas de pneu nas curvas
+    g.strokeStyle = 'rgba(20,20,25,.22)'; g.lineWidth = 2.5;
+    for (let i = 0; i < N; i += 3) {
+      const a = T.ANG[(i + 4) % N] - T.ANG[i]; const cur = Math.abs(Math.atan2(Math.sin(a), Math.cos(a)));
+      if (cur < .12 || R() < .55) continue;
+      const off = (R() - .5) * RW * .6, len = 8 + (R() * 10 | 0);
+      for (const d of [-3, 3]) { g.beginPath(); for (let j = 0; j < len; j++) { const q = (i + j) % N, w = off + d + j * (R() - .5) * .3; g[j ? 'lineTo' : 'moveTo'](P[q][0] + T.NRM[q][0] * w, P[q][1] + T.NRM[q][1] * w); } g.stroke(); }
+    }
+  });
+  t.setLineDash([20, 26]); t.lineCap = 'butt'; trace(t); t.lineWidth = 2; t.strokeStyle = C.line; t.stroke(); t.setLineDash([]);
+  if (def.snow) { // geada por cima de tudo (sensação de velocidade no gelo)
+    for (let i = 0; i < 7000; i++) { t.fillStyle = 'rgba(255,255,255,.7)'; t.fillRect(R() * TS, R() * TS, 2, 2); }
+    t.strokeStyle = 'rgba(255,255,255,.45)'; t.lineWidth = 1.5;
+    for (let i = 0; i < 1600; i++) { const x = R() * TS, y = R() * TS, a = R() * TAU, l = 6 + R() * 18; t.beginPath(); t.moveTo(x, y); t.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l); t.stroke(); }
+  }
+  // largada, grid, turbos, lombadas, rampas (iguais ao original, com acabamento)
+  at(t, 0, 0, () => { for (let r = 0; r < 2; r++) for (let y = -RW / 2, k = 0; y < RW / 2; y += 8, k++) { t.fillStyle = (k + r) % 2 ? '#111' : '#fff'; t.fillRect(-8 + r * 8, y, 8, 8); } });
+  for (let g = 1; g <= 4; g++) { const i = (N - 4 - 5 * ((g - 1) >> 1)) % N; at(t, i, (g % 2 ? -15 : 15), () => { t.strokeStyle = '#fff'; t.lineWidth = 2; t.strokeRect(-3, -7, 12, 14); }); }
+  for (const [x, y, off] of def.pads) at(t, nearestIn(P, x, y), off, () => {
+    t.fillStyle = E.ink || '#a85a00'; t.fillRect(-24, -15, 48, 30);
+    t.fillStyle = '#ffd23f'; t.fillRect(-22, -13, 44, 26); t.fillStyle = '#fff1a0'; t.fillRect(-22, -13, 44, 4);
+    t.fillStyle = '#ff7b00';
+    for (let c = -16; c < 18; c += 12) { t.beginPath(); t.moveTo(c, -9); t.lineTo(c + 8, 0); t.lineTo(c, 9); t.lineTo(c + 3, 9); t.lineTo(c + 11, 0); t.lineTo(c + 3, -9); t.fill(); }
+  });
+  for (const b of T.bumps) at(t, b.i, 0, () => { for (let y = -RW / 2 - 4, k = 0; y < RW / 2 + 4; y += 8, k++) { t.fillStyle = k % 2 ? '#1b1b1b' : '#ffd23f'; t.fillRect(-4, y, 8, 8); } });
+  for (const r of T.ramps) at(t, r.i, r.off, () => { t.fillStyle = 'rgba(0,0,0,.4)'; t.fillRect(-RAMP_L / 2, -RAMP_W / 2 - 2, RAMP_L + 8, RAMP_W + 4); });
+  T.tex = new Uint32Array(t.getImageData(0, 0, TS, TS).data.buffer); cv.width = cv.height = 0;
+  T.OUTC = (255 << 24) | (C.out[2] << 16) | (C.out[1] << 8) | C.out[0];
+}
+
+// ---------- Manaus: rio, Encontro das Águas, praia, Centro e Largo de São Sebastião ----------
+const dentro = (pol, x, y) => { let d = false; for (let i = 0, j = pol.length - 1; i < pol.length; j = i++) { const [xi, yi] = pol[i], [xj, yj] = pol[j]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) d = !d; } return d; };
+const caminho = (t, pol) => { t.beginPath(); pol.forEach(([x, y], i) => t[i ? 'lineTo' : 'moveTo'](x, y)); t.closePath(); };
+function ondas(t, R, n, c1, c2, area) { // risquinhos "~" de água
+  t.lineWidth = 3; t.lineCap = 'round';
+  for (let i = 0; i < n; i++) { const x = R() * TS, y = R() * TS; if (area && !dentro(area, x, y)) continue; t.strokeStyle = R() < .5 ? c1 : c2; t.beginPath(); t.moveTo(x, y); t.quadraticCurveTo(x + 6, y - 5, x + 12, y); t.quadraticCurveTo(x + 18, y + 5, x + 24, y); t.stroke(); }
+}
+function pintaManaus(t, T, R) {
+  const d = T.def, ink = E.ink || '#2a2a3a';
+  // Centro: quarteirões de calçada com ruas em grade
+  t.save(); caminho(t, d.centro); t.clip();
+  t.fillStyle = '#d8d0c0'; t.fillRect(0, 0, TS, TS);
+  for (let x = 0; x < TS; x += 150) { t.fillStyle = '#7d7d8a'; t.fillRect(x, 0, 26, TS); t.fillStyle = '#ffd23f'; for (let y = 0; y < TS; y += 30) t.fillRect(x + 12, y, 2, 14); }
+  for (let y = 0; y < TS; y += 150) { t.fillStyle = '#7d7d8a'; t.fillRect(0, y, TS, 26); t.fillStyle = '#ffd23f'; for (let x = 0; x < TS; x += 30) t.fillRect(x, y + 12, 14, 2); }
+  for (let i = 0; i < 9000; i++) { t.fillStyle = R() < .5 ? '#c9c0ae' : '#e6dfd0'; t.fillRect(R() * TS, R() * TS, 3, 3); }
+  for (let i = 0; i < 260; i++) { const x = R() * TS, y = R() * TS; t.fillStyle = '#2f9a3a'; t.beginPath(); t.arc(x, y, 9, 0, TAU); t.fill(); t.fillStyle = '#5ccf4a'; t.beginPath(); t.arc(x - 2, y - 2, 4, 0, TAU); t.fill(); }
+  t.restore();
+  t.lineWidth = 6; t.strokeStyle = ink; caminho(t, d.centro); t.stroke();
+  // Largo de São Sebastião: o calçadão de ondas pretas e brancas
+  const [lx, ly, lr] = d.largo;
+  t.save(); t.beginPath(); t.arc(lx, ly, lr, 0, TAU); t.clip();
+  t.fillStyle = '#f4f1ea'; t.fillRect(lx - lr, ly - lr, lr * 2, lr * 2);
+  t.fillStyle = '#26262e';
+  for (let y = ly - lr - 20; y < ly + lr + 20; y += 28) { t.beginPath(); for (let x = lx - lr; x <= lx + lr; x += 4) t.lineTo(x, y + Math.sin(x / 22) * 9); for (let x = lx + lr; x >= lx - lr; x -= 4) t.lineTo(x, y + 13 + Math.sin(x / 22) * 9); t.fill(); }
+  t.restore(); t.lineWidth = 8; t.strokeStyle = ink; t.beginPath(); t.arc(lx, ly, lr, 0, TAU); t.stroke();
+  // praia da Ponta Negra (faixa de areia com guarda-sóis) e cais de pedra no resto da margem
+  t.lineJoin = t.lineCap = 'round';
+  caminho(t, d.agua); t.lineWidth = 70; t.strokeStyle = '#a9a39a'; t.stroke();
+  t.beginPath(); d.praia.forEach(([x, y], i) => t[i ? 'lineTo' : 'moveTo'](x, y)); t.lineWidth = 260; t.strokeStyle = '#f2dca2'; t.stroke();
+  for (let i = 0; i < 2600; i++) { t.fillStyle = R() < .5 ? '#e6cc8c' : '#fff0c4'; t.fillRect(R() * 600, 760 + R() * 1900, 3, 3); }
+  for (let i = 0; i < 70; i++) { // guarda-sóis vistos de cima
+    const k = R(), j = Math.min(d.praia.length - 2, (k * (d.praia.length - 1)) | 0), f = k * (d.praia.length - 1) - j, a = d.praia[j], b = d.praia[j + 1];
+    const x = a[0] + (b[0] - a[0]) * f + 20 + R() * 70, y = a[1] + (b[1] - a[1]) * f;
+    const cs = [['#d62828', '#ffffff'], ['#2f6fd6', '#ffd23f'], ['#2a9d4b', '#ffffff'], ['#ff8c1a', '#ffffff']][i % 4];
+    t.fillStyle = ink; t.beginPath(); t.arc(x, y, 12, 0, TAU); t.fill();
+    for (let w = 0; w < 8; w++) { t.fillStyle = cs[w % 2]; t.beginPath(); t.moveTo(x, y); t.arc(x, y, 10.5, w * TAU / 8, (w + 1) * TAU / 8); t.fill(); }
+  }
+  // Rio Negro (água escura) e o Solimões (barrento): o Encontro das Águas
+  caminho(t, d.agua); t.fillStyle = '#35405a'; t.fill(); t.lineWidth = 6; t.strokeStyle = ink; t.stroke();
+  ondas(t, R, 5200 * (TS / 2048) ** 2, '#4b5a78', '#2b3449', d.agua);
+  t.save(); caminho(t, d.agua); t.clip();
+  caminho(t, d.solimoes); t.fillStyle = '#c08a50'; t.fill();
+  ondas(t, R, 2600, '#d6a36c', '#a8743f', d.solimoes);
+  t.beginPath(); d.solimoes.slice(0, 5).forEach(([x, y], i) => t[i ? 'lineTo' : 'moveTo'](x, y)); t.lineWidth = 10; t.strokeStyle = '#7b6a5a'; t.setLineDash([24, 18]); t.stroke(); t.setLineDash([]);
+  t.restore();
+}
+
+// ---------- Manaus: pontos de referência (desenhados como figurinhas, sempre de frente) ----------
+const MARCOS = {
+  teatro(c, o, ink) { // Teatro Amazonas: fachada rosa, colunas brancas e a cúpula colorida
+    if (!ink) { c.fillStyle = 'rgba(0,0,0,.25)'; c.beginPath(); c.ellipse(0, 0, 90, 8, 0, 0, TAU); c.fill(); }
+    c.fillStyle = '#d9d2c6'; c.fillRect(-84, -10, 168, 10);
+    c.fillStyle = '#f0a3ae'; c.fillRect(-72, -62, 144, 52);
+    c.fillStyle = '#f0a3ae'; c.fillRect(-28, -84, 56, 24);
+    c.fillStyle = '#fff4f4'; c.beginPath(); c.moveTo(-32, -84); c.lineTo(32, -84); c.lineTo(0, -98); c.closePath(); c.fill();
+    c.fillStyle = '#fbf3f3'; c.fillRect(-30, -102, 60, 10);
+    c.fillStyle = '#f4c430'; c.beginPath(); c.ellipse(0, -102, 32, 30, 0, Math.PI, TAU); c.closePath(); c.fill();
+    c.fillStyle = '#ffffff'; c.fillRect(-5, -142, 10, 12);
+    c.fillStyle = '#f4c430'; c.beginPath(); c.moveTo(-3, -142); c.lineTo(3, -142); c.lineTo(0, -152); c.closePath(); c.fill();
+    if (ink) return;
+    c.fillStyle = '#fff4f4'; c.fillRect(-76, -66, 152, 5); c.fillRect(-72, -14, 144, 4);
+    for (let x = -64; x <= 60; x += 14) { c.fillStyle = '#ffffff'; c.fillRect(x, -58, 4.5, 44); if (x < 60) { c.fillStyle = '#8a3a4c'; c.beginPath(); c.moveTo(x + 6.5, -20); c.lineTo(x + 6.5, -42); c.arc(x + 9.25, -42, 2.75, Math.PI, 0); c.lineTo(x + 12, -20); c.fill(); } }
+    for (let x = -24; x <= 20; x += 11) { c.fillStyle = '#ffffff'; c.fillRect(x, -82, 3.5, 20); }
+    c.fillStyle = '#e0c7c7'; c.fillRect(-30, -94, 60, 2);
+    // cúpula: gomos amarelos, verdes e azuis (como os azulejos de verdade)
+    const cores = ['#2a9d4b', '#f4c430', '#2f6fd6', '#f4c430'];
+    for (let g = 0; g < 12; g++) {
+      const a0 = Math.PI + g * Math.PI / 12, a1 = a0 + Math.PI / 12;
+      c.fillStyle = cores[g % 4]; c.beginPath(); c.moveTo(0, -132);
+      c.lineTo(Math.cos(a0) * 32, -102 + Math.sin(a0) * 0); c.lineTo(Math.cos(a1) * 32, -102);
+      c.closePath(); c.fill();
+    }
+    c.fillStyle = 'rgba(255,255,255,.35)'; c.beginPath(); c.ellipse(-12, -118, 6, 10, -.5, 0, TAU); c.fill();
+    c.fillStyle = '#2a9d4b'; c.fillRect(-1, -160, 1.2, 8); c.fillStyle = '#f4c430'; c.fillRect(.2, -160, 6, 4); // bandeirinha
+  },
+  mercado(c, o, ink) { // Mercado Adolpho Lisboa: estrutura de ferro, torre do relógio
+    c.fillStyle = '#e7e1d3'; c.fillRect(-78, -42, 156, 42);
+    c.fillStyle = '#7c8f95'; c.beginPath(); c.moveTo(-82, -42); c.lineTo(82, -42); c.lineTo(70, -54); c.lineTo(-70, -54); c.closePath(); c.fill();
+    c.fillStyle = '#e7e1d3'; c.fillRect(-13, -80, 26, 30);
+    c.fillStyle = '#5f7a80'; c.beginPath(); c.moveTo(-16, -80); c.lineTo(16, -80); c.lineTo(0, -100); c.closePath(); c.fill();
+    for (const tx of [-70, 70]) { c.fillStyle = '#e7e1d3'; c.fillRect(tx - 7, -62, 14, 20); c.fillStyle = '#5f7a80'; c.beginPath(); c.moveTo(tx - 9, -62); c.lineTo(tx + 9, -62); c.lineTo(tx, -74); c.closePath(); c.fill(); }
+    if (ink) return;
+    for (let x = -70; x < 70; x += 14) { c.strokeStyle = '#3f6d6a'; c.lineWidth = 1.6; c.beginPath(); c.moveTo(x + 1, -2); c.lineTo(x + 1, -30); c.arc(x + 7, -30, 6, Math.PI, 0); c.lineTo(x + 13, -2); c.stroke(); c.fillStyle = '#b8d8de'; c.fillRect(x + 3, -28, 8, 12); }
+    c.fillStyle = '#ffffff'; c.beginPath(); c.arc(0, -66, 7, 0, TAU); c.fill(); c.strokeStyle = '#333'; c.lineWidth = 1.2; c.beginPath(); c.moveTo(0, -66); c.lineTo(0, -71); c.moveTo(0, -66); c.lineTo(4, -66); c.stroke();
+    c.fillStyle = '#3f6d6a'; c.font = 'bold 6px Arial'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('MERCADO', 0, -47.5);
+  },
+  barco(c, o, ink) { // barco de recreio: casco branco, 2 andares e as redes coloridas
+    c.translate(0, Math.sin(performance.now() / 600 + o.x) * 1.2);
+    c.fillStyle = '#ffffff'; c.beginPath(); c.moveTo(-46, -4); c.lineTo(44, -4); c.lineTo(52, -16); c.lineTo(-50, -16); c.closePath(); c.fill();
+    c.fillStyle = '#ffffff'; c.fillRect(-38, -30, 74, 14); c.fillRect(-30, -42, 58, 12);
+    c.fillStyle = '#2f6fd6'; c.fillRect(-34, -46, 66, 4); c.fillRect(-42, -33, 82, 3);
+    if (ink) return;
+    c.fillStyle = '#2f6fd6'; c.fillRect(-48, -12, 98, 3); c.fillStyle = '#d62828'; c.fillRect(-45, -6, 89, 2);
+    c.fillStyle = '#3a3a48'; c.fillRect(-35, -27, 68, 7); c.fillRect(-27, -39, 52, 6);
+    const redes = ['#d62828', '#ffd23f', '#2a9d4b', '#ff8c1a', '#2f6fd6', '#ff8fab'];
+    for (let x = -33; x < 30; x += 7) { c.fillStyle = redes[((x + 40) / 7 | 0) % 6]; c.beginPath(); c.ellipse(x + 3, -23, 3, 1.6, 0, 0, Math.PI); c.fill(); }
+    for (let x = -25; x < 22; x += 7) { c.fillStyle = redes[((x + 41) / 7 | 0) % 6]; c.beginPath(); c.ellipse(x + 3, -35.5, 3, 1.5, 0, 0, Math.PI); c.fill(); }
+    c.fillStyle = 'rgba(255,255,255,.55)'; c.fillRect(-46, -1, 92, 1.5);
+  },
+  anfiteatro(c, o, ink) { // anfiteatro da Ponta Negra: arquibancada em meia-lua
+    for (let k = 0; k < 4; k++) { c.fillStyle = k % 2 ? '#e8e3d6' : '#f6f2e8'; c.beginPath(); c.ellipse(0, -2 - k * 7, 66 - k * 10, 10 - k * 1.5, 0, Math.PI, TAU); c.lineTo(66 - k * 10, -2 - k * 7 + 7); c.lineTo(-66 + k * 10, -2 - k * 7 + 7); c.closePath(); c.fill(); }
+    c.fillStyle = '#d6cfbf'; c.fillRect(-70, -6, 140, 6);
+    for (const px of [-58, 58]) { c.fillStyle = '#5a5a66'; c.fillRect(px - 1, -44, 2, 40); c.fillStyle = '#ffe9a0'; c.fillRect(px - 4, -46, 8, 3); }
+    if (ink) return;
+    for (let x = -60; x <= 60; x += 12) { c.fillStyle = '#bfb8a8'; c.fillRect(x, -6, 1.2, 6); }
+  },
+  ponte(c, o, ink) { // Ponte Rio Negro: ponte estaiada com o arco no meio
+    c.fillStyle = '#e9edf2'; c.fillRect(-480, -46, 960, 7);
+    for (let x = -460; x <= 460; x += 46) { c.fillStyle = '#cfd5dd'; c.fillRect(x - 3, -40, 6, 40); }
+    c.fillStyle = '#e9edf2';
+    c.beginPath(); c.moveTo(-42, -40); c.quadraticCurveTo(-30, -180, 0, -220); c.quadraticCurveTo(30, -180, 42, -40); c.lineTo(30, -40); c.quadraticCurveTo(20, -170, 0, -196); c.quadraticCurveTo(-20, -170, -30, -40); c.closePath(); c.fill();
+    if (ink) return;
+    c.strokeStyle = '#ffffff'; c.lineWidth = 1.4;
+    for (let k = 1; k <= 9; k++) { const y = -200 + k * 9; for (const sg of [-1, 1]) { c.beginPath(); c.moveTo(sg * 6, y); c.lineTo(sg * (60 + k * 42), -44); c.stroke(); } }
+    c.fillStyle = '#b9c2cc'; c.fillRect(-480, -40, 960, 2);
+  },
+  rua(c, o, ink) { // placa verde de rua
+    c.fillStyle = '#4a4a55'; c.fillRect(-.8, -30, 1.6, 30);
+    c.font = 'bold 3.6px Arial'; const w = c.measureText(o.txt).width + 6;
+    c.fillStyle = '#1f7a3a'; rr(c, -w / 2, -38, w, 9, 1); c.fill();
+    if (ink) return;
+    c.strokeStyle = '#ffffff'; c.lineWidth = .5; rr(c, -w / 2 + 1, -37, w - 2, 7, .8); c.stroke();
+    c.fillStyle = '#ffffff'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(o.txt, 0, -33.4);
+  },
+  palm(c, o, ink) { // palmeira de açaí
+    const k = .9 + o.v * .5; c.scale(k, k);
+    const lean = (o.v - .5) * 8;
+    c.strokeStyle = '#8a6a45'; c.lineWidth = 2; c.lineCap = 'round'; c.beginPath(); c.moveTo(0, 0); c.quadraticCurveTo(lean * .2, -14, lean, -26); c.stroke();
+    c.fillStyle = '#2f9a3a';
+    for (let f = 0; f < 7; f++) { const a = Math.PI + .2 + f * (Math.PI - .4) / 6; c.beginPath(); c.moveTo(lean, -26); c.quadraticCurveTo(lean + Math.cos(a) * 9, -26 + Math.sin(a) * 9 - 3, lean + Math.cos(a) * 14, -26 + Math.sin(a) * 6 + 5); c.quadraticCurveTo(lean + Math.cos(a) * 7, -26 + Math.sin(a) * 5, lean, -26); c.fill(); }
+    if (ink) return;
+    c.fillStyle = '#5ccf4a'; for (let f = 0; f < 3; f++) { const a = Math.PI + .7 + f * .8; c.beginPath(); c.arc(lean + Math.cos(a) * 6, -27 + Math.sin(a) * 4, 1.6, 0, TAU); c.fill(); }
+    if (o.v > .4) { c.fillStyle = '#4a1f5a'; for (const [dx, dy] of [[-1, -23], [1, -22.5], [0, -21.5]]) { c.beginPath(); c.arc(lean + dx, dy, 1.1, 0, TAU); c.fill(); } } // cacho de açaí
+    c.strokeStyle = '#6b4f30'; c.lineWidth = .4; for (let y = -4; y > -24; y -= 3) { c.beginPath(); c.moveTo(-1 + lean * (-y / 26), y); c.lineTo(1 + lean * (-y / 26), y); c.stroke(); }
+  },
+};
+const MARCO_TAM = { teatro: [90, 2400], mercado: [85, 2000], barco: [55, 1800], anfiteatro: [72, 1800], ponte: [500, 3200] };
+
+// céu de Manaus: floresta no horizonte, o rio com a Ponte Rio Negro (sudoeste) e a cidade no resto
+function buildSkyManaus(def, R) {
+  const sky = document.createElement('canvas'); sky.width = SW; sky.height = SH;
+  const s = sky.getContext('2d'), ink = E.ink || '#2a2a3a';
+  for (let i = 0; i < 9; i++) { const x = R() * SW, y = 8 + R() * 10, w = 7 + R() * 4; nuvem(s, x, y, w, '#ffffff', '#d8f0ff', E.ink); }
+  // floresta ao longe (morros verdes) e o rio
+  s.fillStyle = '#3f9a50'; s.beginPath(); s.moveTo(0, SH); for (let x = 0; x <= SW; x += 4) s.lineTo(x, SH - 14 - Math.sin(x / 70) * 5 - Math.sin(x / 23 + 2) * 2.5); s.lineTo(SW, SH); s.fill();
+  s.strokeStyle = ink; s.lineWidth = 1; s.beginPath(); for (let x = 0; x <= SW; x += 4) s[x ? 'lineTo' : 'moveTo'](x, SH - 14 - Math.sin(x / 70) * 5 - Math.sin(x / 23 + 2) * 2.5); s.stroke();
+  const rio0 = 470, rio1 = 1060;
+  s.fillStyle = '#35405a'; s.fillRect(rio0, SH - 7, rio1 - rio0, 7); s.fillStyle = '#4b5a78'; for (let x = rio0; x < rio1; x += 9) s.fillRect(x + (x % 5), SH - 4 - (x % 3), 5, 1);
+  // Ponte Rio Negro no horizonte
+  const bx = 780;
+  s.fillStyle = ink; s.fillRect(bx - 150, SH - 17, 300, 4);
+  s.fillStyle = '#eef2f6'; s.fillRect(bx - 149, SH - 16.5, 298, 2.6);
+  s.strokeStyle = ink; s.lineWidth = 3; s.beginPath(); s.moveTo(bx - 9, SH - 15); s.quadraticCurveTo(bx - 6, SH - 46, bx, SH - 52); s.quadraticCurveTo(bx + 6, SH - 46, bx + 9, SH - 15); s.stroke();
+  s.strokeStyle = '#eef2f6'; s.lineWidth = 1.6; s.stroke();
+  s.strokeStyle = 'rgba(255,255,255,.9)'; s.lineWidth = .6; for (let k = 1; k <= 6; k++) for (const sg of [-1, 1]) { s.beginPath(); s.moveTo(bx + sg * 2, SH - 50 + k * 4); s.lineTo(bx + sg * (14 + k * 19), SH - 16); s.stroke(); }
+  // cidade colorida fora do trecho do rio, com a cúpula do Teatro Amazonas
+  const pal = ['#f2a65a', '#8fb8de', '#c4a7e7', '#f7d470', '#f08a8a'];
+  for (let x = 0; x < SW; x += 15 + R() * 16) {
+    if (x > rio0 - 20 && x < rio1) continue;
+    const w = 11 + R() * 14, h = 12 + R() * 24, col = pal[(x | 0) % pal.length];
+    s.fillStyle = ink; s.fillRect(x - .8, SH - h - .8, w + 1.6, h + 1);
+    s.fillStyle = col; s.fillRect(x, SH - h, w, h); s.fillStyle = drk(col, .2); s.fillRect(x + w * .72, SH - h, w * .28, h);
+    for (let wy = SH - h + 4; wy < SH - 4; wy += 5) for (let wx = x + 2; wx < x + w * .7 - 2; wx += 4) if (R() < .6) { s.fillStyle = '#ffffff'; s.fillRect(wx, wy, 2, 2.2); }
+  }
+  for (const tx of [1250, 250]) {
+    s.fillStyle = ink; s.beginPath(); s.ellipse(tx, SH - 22, 12, 12, 0, Math.PI, TAU); s.fill(); s.fillRect(tx - 15, SH - 23, 30, 23);
+    s.fillStyle = '#f0a3ae'; s.fillRect(tx - 14, SH - 22, 28, 22);
+    const cores = ['#2a9d4b', '#f4c430', '#2f6fd6'];
+    for (let g = 0; g < 6; g++) { s.fillStyle = cores[g % 3]; s.beginPath(); s.moveTo(tx, SH - 33); s.lineTo(tx - 11 + g * 3.7, SH - 22); s.lineTo(tx - 11 + (g + 1) * 3.7, SH - 22); s.fill(); }
+    s.fillStyle = '#fff'; s.fillRect(tx - 1, SH - 37, 2, 4);
+  }
+  // palmeiras na frente
+  for (let x = 0; x < SW; x += 11) {
+    const h = 8 + R() * 6; s.strokeStyle = '#6b4f30'; s.lineWidth = 1.2; s.beginPath(); s.moveTo(x, SH); s.lineTo(x + 1, SH - h); s.stroke();
+    s.fillStyle = '#2f9a3a'; for (let f = 0; f < 5; f++) { const a = Math.PI + .3 + f * .6; s.beginPath(); s.ellipse(x + 1 + Math.cos(a) * 4, SH - h + Math.sin(a) * 2 + 1, 4, 1.4, a, 0, TAU); s.fill(); }
+  }
+  s.fillStyle = '#3a8f3f'; for (let x = 0; x < SW; x += 6) { s.beginPath(); s.arc(x, SH, 3.5, 0, TAU); s.fill(); }
+  return sky;
+}
+
+// ---------- pós-processamento por tela ----------
+function renderViewNovo(v, oy, time, dt) {
+  if (E.toon && v === views[0]) { toonEventos(); toonUpdate(dt); }
+  GLOWS = [];
+  ORIG.renderView(v, oy, time, dt);
+  ctx.save(); ctx.beginPath(); ctx.rect(0, oy, W, VH); ctx.clip();
+  if (E.noite && TR.sky.glow) {
+    // 1) escurece tudo com a cor da noite  2) acende janelas, lua, faróis e postes por cima
+    ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = E.noite.tint; ctx.fillRect(0, oy, W, VH);
+    ctx.globalCompositeOperation = 'screen';
+    let off = ((-camA / TAU) * SW) % SW; if (off > 0) off -= SW;
+    ctx.drawImage(TR.sky.glow, off, oy + HOR + 1 - SH); ctx.drawImage(TR.sky.glow, off + SW, oy + HOR + 1 - SH);
+    ctx.globalCompositeOperation = 'lighter';
+    for (const L of GLOWS) {
+      const g = ctx.createRadialGradient(0, 0, 0, 0, 0, L.r); g.addColorStop(0, L.col); g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.save(); ctx.translate(L.x, L.y); ctx.scale(1, L.sy); ctx.fillStyle = g; ctx.fillRect(-L.r, -L.r, L.r * 2, L.r * 2); ctx.restore();
+    }
+    ctx.globalCompositeOperation = 'source-over';
+  }
+  ctx.translate(0, oy);
+  if (E.toon) toonDraw();
+  if (E.warm && !E.noite) {
+    // luz de fim de tarde: tudo puxa para o laranja embaixo e lilás em cima
+    ctx.globalCompositeOperation = 'soft-light';
+    const g = ctx.createLinearGradient(0, 0, 0, VH); g.addColorStop(0, 'rgba(120,80,200,.55)'); g.addColorStop(.35, 'rgba(255,160,80,.65)'); g.addColorStop(1, 'rgba(255,120,60,.45)');
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, VH);
+    ctx.globalCompositeOperation = 'screen';
+    let off = ((-camA / TAU) * SW) % SW; if (off > 0) off -= SW; // o sol anda junto com o céu
+    for (const base of [off + 300, off + 300 + SW]) if (base > -80 && base < W + 80) {
+      const r = ctx.createRadialGradient(base, HOR - 14, 0, base, HOR - 14, 120); r.addColorStop(0, 'rgba(255,200,120,.55)'); r.addColorStop(1, 'rgba(255,140,80,0)');
+      ctx.fillStyle = r; ctx.fillRect(0, 0, W, VH);
+    }
+    ctx.globalCompositeOperation = 'source-over';
+  }
+  if (E.vig) {
+    const g = ctx.createRadialGradient(W / 2, VH * .55, VH * .35, W / 2, VH * .55, W * .62);
+    g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, `rgba(${E.warm ? '40,10,50' : '0,0,20'},${E.vig})`);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, VH);
+  }
+  ctx.restore();
+}
+
+function buildTrackNovo(def) {
+  const T = ORIG.buildTrack(def);
+  pintaChao(T);
+  if (def.agua) {
+    const R = rng(def.seed + 11), naPista = (x, y, r) => { for (const [a, b] of [[0, 0], [r, 0], [-r, 0], [0, r], [0, -r]]) { const ix = (x + a) | 0, iy = (y + b) | 0; if (ix < 0 || iy < 0 || ix >= TS || iy >= TS || T.mask[iy * TS + ix] > 0) return true; } return false; };
+    const ok = (x, y) => !dentro(def.agua, x, y) && !(Math.hypot(x - def.largo[0], y - def.largo[1]) < def.largo[2] + 20);
+    T.scenery = T.scenery.filter(o => o.type === 'arch' || ok(o.x, o.y));
+    for (let i = 0; i < 420; i++) { const x = 60 + R() * (TS - 120), y = 60 + R() * (TS - 120); if (ok(x, y) && !naPista(x, y, 40)) T.scenery.push({ x, y, type: dentro(def.centro, x, y) ? (R() < .5 ? 'tree' : 'palm') : 'palm', v: R() }); }
+    for (const [x, y, type] of def.marcos) { const [half, far] = MARCO_TAM[type]; T.scenery.push({ x, y, type, v: R(), half, far }); }
+    for (const [x, y, txt, side] of def.ruas) { const i = nearestIn(T.P, x, y), off = side * (RW / 2 + 26); T.scenery.push({ x: T.P[i][0] + T.NRM[i][0] * off, y: T.P[i][1] + T.NRM[i][1] * off, type: 'rua', txt, v: 0, half: 30 }); }
+  }
+  if (E.noite && !def.snow) { // postes de luz ao longo da pista, alternando os lados
+    for (let i = 6, side = 1; i < T.N; i += 26, side = -side) T.scenery.push({ type: 'lamp', x: T.P[i][0] + T.NRM[i][0] * side * (RW / 2 + 15), y: T.P[i][1] + T.NRM[i][1] * side * (RW / 2 + 15), v: 0 });
+  }
+  return T;
+}
+
+// ---------- liga/desliga ----------
+window.aplicarEstilo = function (id, op = {}) {
+  E = ESTILOS[id] ? { ...ESTILOS[id], noite: op.noite ? NOITE[id] : null, toon: !!op.toon } : null;
+  TRACKS.forEach((t, i) => { t.col = { ...COL0[i] }; });
+  if (E) Object.assign(TRACKS[0].col, E.col);
+  if (E && E.noite) Object.assign(TRACKS[0].col, { sky0: E.noite.sky0, sky1: E.noite.sky1, fog: E.noite.fog });
+  TOON = [];
+  window.drawKart = E ? drawKartNovo : ORIG.drawKart;
+  window.drawScenery = E ? drawSceneryNovo : ORIG.drawScenery;
+  window.drawBag = E ? drawBagNovo : ORIG.drawBag;
+  window.drawArch = E ? drawArchNovo : ORIG.drawArch;
+  window.buildSky = E ? buildSkyNovo : ORIG.buildSky;
+  window.renderView = E ? renderViewNovo : ORIG.renderView;
+  window.buildTrack = E ? buildTrackNovo : ORIG.buildTrack; TEX_EXTERNA = !!E;
+  trackCache.length = 0; useTrack(chosenTrack);
+  return E ? E.nome + (E.noite ? ' (noite)' : '') : 'Atual';
+};
+const _hit = window.hitKart; window.hitKart = function (k, why) { k.lastHit = why; return _hit(k, why); };
+aplicarEstilo('b', { toon: true, noite: /noite/.test(location.hash + location.search) });
+})();
+
 // autoteste: simula 150 s de corrida só com IA em cada pista e mostra um relatório
 if (location.hash === '#autoteste') {
   const rep = [];
@@ -1691,6 +2672,7 @@ if (salaConvite) {
 }
 if (location.hash === '#corrida') startRace();       // atalho: abre direto na largada
 if (location.hash === '#frio') { chosenTrack = 1; startRace(); }
+if (location.hash === '#manaus') { chosenTrack = 2; startRace(); }
 requestAnimationFrame(frame);
 </script>
 </body>
