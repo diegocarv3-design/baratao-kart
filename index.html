@@ -194,13 +194,15 @@ function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let
 // Resolução interna "retrô": tudo é desenhado em 384x216 e ampliado (no celular a largura cresce até preencher a tela).
 let W = 384; const H = 216, CAMH = 17, CAMDIST = 34;
 const cv = $('#game'), ctx = cv.getContext('2d');
+let Q = 1, HD_OFF = false, rMed = 0, rN = 0; // nitidez: a tela é desenhada Q vezes mais fina (Manaus usa 2), mas a lógica do jogo continua em 384x216
 cv.width = W; cv.height = H;
 // 1 jogador: tela cheia · 2 jogadores: cada um vê meia tela, com a câmera mais "aberta" (FOCAL menor)
 const LAYOUTS = { 1: { vh: H, hor: 62, focal: 170, mm: 54, mmY: 38 }, 2: { vh: H / 2, hor: 28, focal: 110, mm: 42, mmY: 24 } };
-let VH, HOR, FOCAL, MMS, mmY, GH, gImg, g32;
+let VH, HOR, FOCAL, MMS, mmY, GH, gImg, g32, LN = 1;
 function setLayout(n) {
-  ({ vh: VH, hor: HOR, focal: FOCAL, mm: MMS, mmY } = LAYOUTS[n]);
-  GH = VH - HOR - 1; gImg = ctx.createImageData(W, GH); g32 = new Uint32Array(gImg.data.buffer);
+  LN = n; ({ vh: VH, hor: HOR, focal: FOCAL, mm: MMS, mmY } = LAYOUTS[n]);
+  if (cv.width !== W * Q || cv.height !== H * Q) { cv.width = W * Q; cv.height = H * Q; }
+  GH = VH - HOR - 1; gImg = ctx.createImageData(W * Q, GH * Q); g32 = new Uint32Array(gImg.data.buffer);
   $('#wrap').classList.toggle('split', n > 1);
 }
 setLayout(1);
@@ -236,7 +238,7 @@ const TRACKS = [
     col: { a: '#d6e6f0', b: '#e6f1f8', sp: ['#c4d9e7', '#ffffff'], flowers: false, shoulder: '#f4faff', curbA: '#ffffff', curbB: '#2f6fd6',
            road: '#86aac4', road2: '#93b6cf', line: '#ffffff', out: [0xb4, 0xc8, 0xd6], txt: '#2f6fd6', sky0: '#5f7786', sky1: '#c7d8e3', fog: '205,222,233' } },
   // Circuito Manaus: passeio pelos pontos famosos (traçado inventado, nomes de ruas reais). Mapa 3072 (1,5x maior).
-  { id: 'manaus', name: 'Circuito Manaus', seed: 1669, ts: 3072, grip: 14, offMul: .42, aiCurv: .2, sky: 'manaus',
+  { id: 'manaus', name: 'Circuito Manaus', seed: 1669, ts: 3072, q: 2, grip: 14, offMul: .42, aiCurv: .2, sky: 'manaus',
     cp: [[1300,2050],[1650,2080],[1900,2250],[2050,2480],[2350,2560],[2650,2450],[2800,2150],[2750,1600],[2780,1000],[2650,600],[2250,450],[2330,850],[2150,1300],[1750,1320],[1640,920],[1600,500],[1300,620],[950,450],[600,620],[520,1000],[560,1500],[520,2000],[650,2350],[950,2550],[1150,2450],[1050,2200]],
     pads: [[2765,1250,0],[545,1300,-12],[2200,2530,12]], boxes: [[1760,2110],[2772,1900],[1500,540],[545,1700],[1000,2530]],
     bumps: [[1960,2350],[1120,530]], ramps: [[2775,780,0],[530,1820,0]],
@@ -420,6 +422,7 @@ const trackCache = [];
 let TR, P, N, DIR, NRM, ANG, chosenTrack = 0;
 function useTrack(i) {
   TS = TRACKS[i].ts || 2048;
+  const q = HD_OFF ? 1 : TRACKS[i].q || 1; if (q !== Q) { Q = q; setLayout(LN); }
   if (!trackCache[i]) trackCache[i] = buildTrack(TRACKS[i]);
   TR = trackCache[i]; ({ P, N, DIR, NRM, ANG } = TR);
 }
@@ -1026,18 +1029,35 @@ let fx = 1, fy = 0, rx = 0, ry = 1, camH = CAMH; // camH: altura da câmera (sob
 function mode7(oy) {
   // Para cada linha da tela abaixo do horizonte: calcula a que distância o chão está
   // e "caminha" pela textura do mapa. É o truque de perspectiva estilo Mode 7.
-  const tex = TR.tex, OUTC = TR.OUTC; let o = 0;
-  for (let r = 0; r < GH; r++) {
-    const z = camH * FOCAL / (r + 1), k = z / FOCAL;
+  const tex = TR.tex, OUTC = TR.OUTC, q = Q, Wq = W * q, GHq = GH * q, liso = q > 1, T1 = TS - 1; let o = 0;
+  for (let r = 0; r < GHq; r++) {
+    const z = camH * FOCAL * q / (r + q), k = z / FOCAL;
     let wx = camX + fx * z - rx * k * W / 2, wy = camY + fy * z - ry * k * W / 2;
-    const sx = rx * k, sy = ry * k;
-    for (let c = 0; c < W; c++) {
-      const ix = wx | 0, iy = wy | 0;
-      g32[o++] = (ix >= 0 && ix < TS && iy >= 0 && iy < TS) ? tex[iy * TS + ix] : OUTC;
-      wx += sx; wy += sy;
+    const sx = rx * k / q, sy = ry * k / q;
+    if (liso && k < q * .8) { // perto: cada ponto do mapa ocupa vários pixels -> suaviza
+      wx -= .5; wy -= .5;
+      for (let c = 0; c < Wq; c++) {
+        const ix = Math.floor(wx), iy = Math.floor(wy);
+        if (ix >= 0 && ix < T1 && iy >= 0 && iy < T1) {
+          const ax = ((wx - ix) * 256) | 0, ay = ((wy - iy) * 256) | 0, i = iy * TS + ix;
+          const a = tex[i], b = tex[i + 1], cc = tex[i + TS], d = tex[i + TS + 1];
+          const w0 = (256 - ax) * (256 - ay), w1 = ax * (256 - ay), w2 = (256 - ax) * ay, w3 = ax * ay;
+          const R = ((a & 255) * w0 + (b & 255) * w1 + (cc & 255) * w2 + (d & 255) * w3) >> 16;
+          const G = (((a >> 8) & 255) * w0 + ((b >> 8) & 255) * w1 + ((cc >> 8) & 255) * w2 + ((d >> 8) & 255) * w3) >> 16;
+          const B = (((a >> 16) & 255) * w0 + ((b >> 16) & 255) * w1 + ((cc >> 16) & 255) * w2 + ((d >> 16) & 255) * w3) >> 16;
+          g32[o++] = 0xff000000 | (B << 16) | (G << 8) | R;
+        } else g32[o++] = OUTC;
+        wx += sx; wy += sy;
+      }
+    } else {
+      for (let c = 0; c < Wq; c++) {
+        const ix = wx | 0, iy = wy | 0;
+        g32[o++] = (ix >= 0 && ix < TS && iy >= 0 && iy < TS) ? tex[iy * TS + ix] : OUTC;
+        wx += sx; wy += sy;
+      }
     }
   }
-  ctx.putImageData(gImg, 0, oy + HOR + 1); // putImageData ignora o translate, por isso recebe o deslocamento da meia tela
+  ctx.putImageData(gImg, 0, (oy + HOR + 1) * q); // putImageData ignora o translate/escala, por isso recebe a posição real
 }
 function project(x, y) {
   const dx = x - camX, dy = y - camY, depth = dx * fx + dy * fy;
@@ -1157,7 +1177,13 @@ function drawTag(x, y, txt, col) { // etiqueta "J1"/"J2" em cima do kart do outr
   ctx.fillStyle = '#000'; ctx.fillText(txt, x + .7, y + .7); ctx.fillStyle = col; ctx.fillText(txt, x, y);
 }
 function render(time, dt) {
+  ctx.setTransform(Q, 0, 0, Q, 0, 0);
+  const t0 = performance.now();
   views.forEach((v, i) => renderView(v, i * VH, time, dt));
+  if (Q > 1 && state === 'race') { // aparelho lento? volta para a resolução normal (melhor fluido que nítido)
+    rMed = rMed * .95 + (performance.now() - t0) * .05;
+    if (++rN > 120 && rMed > 22) { HD_OFF = true; Q = 1; setLayout(LN); }
+  } else rN = 0;
   if (views.length > 1) { ctx.fillStyle = '#0d0d1a'; ctx.fillRect(0, VH - 1, W, 2); }
 }
 function renderView(v, oy, time, dt) {
@@ -1170,7 +1196,7 @@ function renderView(v, oy, time, dt) {
   ctx.save(); ctx.beginPath(); ctx.rect(0, oy, W, VH); ctx.clip(); ctx.translate(0, oy);
   ctx.fillStyle = G.sky; ctx.fillRect(0, 0, W, HOR + 1);
   let off = ((-camA / TAU) * SW) % SW; if (off > 0) off -= SW;
-  ctx.drawImage(TR.sky, off, HOR + 1 - SH); ctx.drawImage(TR.sky, off + SW, HOR + 1 - SH);
+  ctx.drawImage(TR.sky, off, HOR + 1 - SH, SW, SH); ctx.drawImage(TR.sky, off + SW, HOR + 1 - SH, SW, SH);
   mode7(oy);
   ctx.fillStyle = G.fog; ctx.fillRect(0, HOR, W, 28);
   drawSprites(time, v);
@@ -1828,7 +1854,7 @@ document.querySelectorAll('#touch button:not(#tL):not(#tR)').forEach(b => {
 function fit() {
   if (isTouch) { // celular: a imagem ocupa a tela inteira; a largura interna cresce (até 560) em vez de sobrar faixa preta
     const sw = innerWidth, sh = innerHeight, nw = clamp(Math.round(H * sw / sh / 2) * 2, 384, 560);
-    if (nw !== W) { W = nw; cv.width = W; cv.height = H; setLayout(1); }
+    if (nw !== W) { W = nw; setLayout(LN); }
     const w = Math.min(sw, sh * W / H), h = w * H / W, wrap = $('#wrap');
     wrap.style.width = w + 'px'; wrap.style.height = h + 'px'; wrap.style.left = (sw - w) / 2 + 'px'; wrap.style.top = (sh - h) / 2 + 'px';
     wrap.style.setProperty('--u', (h / H) + 'px'); return;
@@ -2529,8 +2555,8 @@ const MARCO_TAM = { teatro: [90, 2400], mercado: [85, 2000], barco: [55, 1800], 
 
 // céu de Manaus: floresta no horizonte, o rio com a Ponte Rio Negro (sudoeste) e a cidade no resto
 function buildSkyManaus(def, R) {
-  const sky = document.createElement('canvas'); sky.width = SW; sky.height = SH;
-  const s = sky.getContext('2d'), ink = E.ink || '#2a2a3a';
+  const q = def.q || 1, sky = document.createElement('canvas'); sky.width = SW * q; sky.height = SH * q;
+  const s = sky.getContext('2d'), ink = E.ink || '#2a2a3a'; s.scale(q, q);
   for (let i = 0; i < 9; i++) { const x = R() * SW, y = 8 + R() * 10, w = 7 + R() * 4; nuvem(s, x, y, w, '#ffffff', '#d8f0ff', E.ink); }
   // floresta ao longe (morros verdes) e o rio
   s.fillStyle = '#3f9a50'; s.beginPath(); s.moveTo(0, SH); for (let x = 0; x <= SW; x += 4) s.lineTo(x, SH - 14 - Math.sin(x / 70) * 5 - Math.sin(x / 23 + 2) * 2.5); s.lineTo(SW, SH); s.fill();
@@ -2580,7 +2606,7 @@ function renderViewNovo(v, oy, time, dt) {
     ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = E.noite.tint; ctx.fillRect(0, oy, W, VH);
     ctx.globalCompositeOperation = 'screen';
     let off = ((-camA / TAU) * SW) % SW; if (off > 0) off -= SW;
-    ctx.drawImage(TR.sky.glow, off, oy + HOR + 1 - SH); ctx.drawImage(TR.sky.glow, off + SW, oy + HOR + 1 - SH);
+    ctx.drawImage(TR.sky.glow, off, oy + HOR + 1 - SH, SW, SH); ctx.drawImage(TR.sky.glow, off + SW, oy + HOR + 1 - SH, SW, SH);
     ctx.globalCompositeOperation = 'lighter';
     for (const L of GLOWS) {
       const g = ctx.createRadialGradient(0, 0, 0, 0, 0, L.r); g.addColorStop(0, L.col); g.addColorStop(1, 'rgba(0,0,0,0)');
